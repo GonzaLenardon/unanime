@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Etiqueta</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  </head>
+  <body>
+    <canvas id="barcode" style="display: none"></canvas>
+    <button onclick="generarEtiqueta()">Generar etiqueta</button>
+
+    <script>
+      const { jsPDF } = window.jspdf;
+
+      function generarEtiqueta() {
+        const producto = {
+          codigo: '123456789012',
+          nombre: 'Zapatilla',
+          marca: 'Nike',
+          talle: '42',
+          modelo: 'AirMax',
+        };
+
+        const canvas = document.getElementById('barcode');
+
+        // Crear código de barras
+        JsBarcode(canvas, producto.codigo, {
+          format: 'CODE128',
+          width: 1.5,
+          height: 20,
+          displayValue: false,
+          margin: 0,
+        });
+
+        // Crear PDF tamaño etiqueta (50x25 mm)
+        const pdf = new jsPDF({
+          orientation: 'landscape',
+          unit: 'mm',
+          format: [50, 25],
+        });
+
+        // Texto arriba del código de barras
+        const descripcion = `${producto.nombre} - ${producto.marca} - T${producto.talle} - ${producto.modelo}`;
+        pdf.setFontSize(6);
+        pdf.text(descripcion, 2, 6); // x:2mm, y:6mm
+
+        // Código de barras
+        const imgData = canvas.toDataURL('image/png');
+        pdf.addImage(imgData, 'PNG', 5, 8, 40, 10); // x, y, width, height
+
+        // Texto debajo del código de barras
+        pdf.setFontSize(7);
+        pdf.text(producto.codigo, 25, 22, { align: 'center' });
+
+        // Mostrar PDF
+        pdf.output('dataurlnewwindow');
+      }
+    </script>
+  </body>
+</html>

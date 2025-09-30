@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Etiqueta como Imagen</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 10px;
+        font-family: Arial, sans-serif;
+      }
+
+      #preview {
+        width: 5cm;
+        height: 2.5cm;
+        border: 1px dashed #ccc;
+        padding: 4px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #imagen-final {
+        margin-top: 10px;
+      }
+
+      @media print {
+        body {
+          margin: 0;
+          padding: 0;
+        }
+        #print-button,
+        #generate-button,
+        #preview {
+          display: none;
+        }
+        #imagen-final {
+          display: block;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="preview">
+      <div>Producto: Zapatilla Roja</div>
+      <canvas id="barcode"></canvas>
+    </div>
+
+    <button id="generate-button" onclick="generarImagen()">
+      Generar imagen
+    </button>
+    <button id="print-button" onclick="window.print()">🖨 Imprimir</button>
+
+    <img id="imagen-final" style="display: none" />
+
+    <script>
+      JsBarcode('#barcode', '123456789012', {
+        format: 'CODE128',
+        width: 1.5,
+        height: 40,
+        displayValue: false,
+      });
+
+      function generarImagen() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 200;
+        canvas.height = 100;
+        const ctx = canvas.getContext('2d');
+
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#000';
+        ctx.font = '12px Arial';
+        ctx.fillText('Producto: Zapatilla Roja', 10, 20);
+
+        const barcodeCanvas = document.getElementById('barcode');
+        ctx.drawImage(barcodeCanvas, 10, 30);
+
+        const img = document.getElementById('imagen-final');
+        img.src = canvas.toDataURL('image/png');
+        img.style.display = 'block';
+      }
+    </script>
+  </body>
+</html>
