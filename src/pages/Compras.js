@@ -20,7 +20,7 @@ const Compras = () => {
   const { fetchProductos, productos, fetchProveedores, proveedores } =
     useGestion();
   const inputRef = useRef(null);
-  const { user } = useAuth();
+  /*   const { user } = useAuth(); */
 
   const [compra, setCompra] = useState({
     proveedor_id: '',
@@ -50,39 +50,6 @@ const Compras = () => {
       [name]: value,
     }));
   };
-  /* 
-  const handleStock = (id_producto, sucursal, stock) => {
-    if (!Number.isInteger(stock) || stock < 0) return;
-    setStockSuc((prev) => {
-      const actual = prev[id_producto] || [];
-
-      // Buscar si ya hay stock para esa sucursal
-      const existe = actual.find((item) => item.sucursal === sucursal);
-
-      let actualizado;
-      if (existe) {
-        actualizado = actual.map((item) =>
-          item.sucursal === sucursal ? { ...item, stock } : item
-        );
-      } else {
-        actualizado = [...actual, { sucursal, stock }];
-      }
-
-      return {
-        ...prev,
-        [id_producto]: actualizado,
-      };
-    });
-  }; */
-
-  useEffect(() => {
-    setItemsVenta((prev) =>
-      prev.map((item) => ({
-        ...item,
-        cantidad: totalStockProducto(item.producto_id),
-      }))
-    );
-  }, [stockSuc]);
 
   const construirCompraFinal = async () => {
     if (!validarCompraCompleta()) {
@@ -95,14 +62,13 @@ const Compras = () => {
       costo: Number(item.costo),
       nombreProducto: item.nombre_producto,
       vencimiento: item.vencimiento,
-      stock_por_sucursal: item.detalles, // 👈 directamente los datos que tenés
-      cantidad: item.detalles.reduce((acc, s) => acc + (s.stock || 0), 0), // 👈 cantidad total
+      cantidad: item.cantidad, // 👈 cantidad total
     }));
 
     const compraFinal = {
       fecha: compra.fecha,
       monto: totalCompra(),
-      id_usuario: user.id,
+      /*  id_usuario: user.id, */
       proveedor_id: Number(compra.proveedor_id),
       numero: compra.numero,
       detalles, // 👈 este contiene toda la info de productos y stock
@@ -146,7 +112,8 @@ const Compras = () => {
   };
 
   const agregarProductoAVenta = (producto) => {
-    const { nombre, modelo, marca, talle, color, id_producto } = producto;
+    const { nombre, modelo, marca, talle, color, codigo, id_producto } =
+      producto;
 
     const existe = itemsVenta.find(
       (item) => item.producto_id === producto.id_producto
@@ -158,22 +125,21 @@ const Compras = () => {
       {
         producto_id: id_producto,
         nombre_producto: nombre,
+        codigo: codigo,
         modelo: modelo,
         marca: marca,
         talle: talle,
         color: color,
         costo: 1,
         vencimiento: new Date().toISOString().split('T')[0],
-        detalles: [
-          { sucursal: 1, stock: 0 },
-          { sucursal: 2, stock: 0 },
-          { sucursal: 3, stock: 0 },
-        ],
+        cantidad: 1,
       },
     ]);
+
+    console.log('Salgo de agegarproducto');
   };
 
-  const updateStock = (producto_id, sucursal, stock) => {
+  /*   const updateStock = (producto_id, sucursal, stock) => {
     setItemsVenta((prev) =>
       prev.map((item) =>
         item.producto_id === producto_id
@@ -186,15 +152,16 @@ const Compras = () => {
           : item
       )
     );
-  };
+  }; */
 
-  const handleCostoVencimiento = (producto_id, value, campo) => {
+  /*   const handleCostoVencimiento = (producto_id, value, campo) => {
     setItemsVenta((prev) =>
       prev.map((item) =>
         item.producto_id === producto_id ? { ...item, [campo]: value } : item
       )
     );
   };
+ */
 
   const eliminarProducto = (id_producto) => {
     setItemsVenta(
@@ -202,35 +169,25 @@ const Compras = () => {
     );
   };
 
-  const totalCompra = () => {
-    return itemsVenta.reduce((total, item) => {
-      const cantidadTotal = item.detalles.reduce(
-        (acc, suc) => acc + (suc.stock || 0),
-        0
-      );
-
-      return total + cantidadTotal * item.costo;
-    }, 0);
-  };
+  const totalCompra = () =>
+    itemsVenta.reduce((total, item) => total + item.cantidad * item.costo, 0);
 
   const validarCompraCompleta = () => {
     const datosBasicosOk = compra.proveedor_id && compra.fecha && compra.numero;
     const sinCostosCero = itemsVenta.every((item) => Number(item.costo) > 0);
-    const sinStocksCero = itemsVenta.every(
-      (item) => totalStockProducto(item.producto_id) > 0
-    );
+    const sinStocksCero = itemsVenta.every((item) => Number(item.cantidad) > 0);
 
     return datosBasicosOk && sinCostosCero && sinStocksCero;
   };
 
-  const totalStockProducto = (producto_id) => {
+  /*   const totalStockProducto = (producto_id) => {
     const producto = itemsVenta.find(
       (item) => item.producto_id === producto_id
     );
     if (!producto) return 0;
 
-    return producto.detalles.reduce((acc, suc) => acc + (suc.stock || 0), 0);
-  };
+    return 9;
+  }; */
 
   return (
     <>
@@ -289,16 +246,16 @@ const Compras = () => {
           >
             <TablaProductos
               itemsVenta={itemsVenta}
-              /*    handleStock={handleStock} */
-              handleCostoVencimiento={handleCostoVencimiento}
-              updateStock={updateStock}
-              totalStockProducto={totalStockProducto}
+              setItemsVenta={setItemsVenta}
+              /*   handleCostoVencimiento={handleCostoVencimiento} */
+              /*   updateStock={updateStock} */
+              /*   totalStockProducto={totalStockProducto} */
               eliminarProducto={eliminarProducto}
             />
 
             <div className="card-footer border-top  mx-2 d-flex flex-wrap align-items-center gap-5">
               <h4 className="text-dark fw-bold flex-grow-1 text-end mb-0">
-                Total: {totalCompra()}
+                Total: {totalCompra().toFixed(2)}
               </h4>
 
               <button

@@ -1,71 +1,74 @@
 import { useState, useEffect, useRef } from 'react';
-import { addVenta, tipoVenta } from '../api/ventas';
+import { addVenta } from '../api/ventas';
+import { allTipoVentas } from '../api/tipoVentas';
 import Spinner from '../components/spinner';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { useGestion } from '../context/UserContext';
-
-/* import { ToastContainer, toast, Slide } from 'react-toastify';
- */ import { getSucursal } from '../api/sucursales';
+import { productosConStock } from '../api/productos';
 
 const Ventas = () => {
-  const { productos, fetchProductos } = useGestion([]); // viene del context
+  const [stock, setStock] = useState([]);
   const [itemsVenta, setItemsVenta] = useState([]);
   const [tipoVta, setTipoVta] = useState([]);
   const [tipo, setTipo] = useState({ porcentajeVenta: 0 });
-  const [idSucursal, setIdSucursal] = useState();
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [modalSearch, setModalSearch] = useState(false);
+
   const navigate = useNavigate();
   const inputRef = useRef(null);
 
-  const { user } = useAuth();
+  // Obtener id_sucursal para estilos dinámicos
+  const id_sucursal = localStorage.getItem('sucursal_id');
+
+  const estilos =
+    id_sucursal === '1'
+      ? {
+          gradiente: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          colorPrincipal: '#667eea',
+          fondoClaro: 'rgba(102, 126, 234, 0.08)',
+          iconoVentas: 'bi-cart-check-fill',
+        }
+      : {
+          gradiente: 'linear-gradient(135deg, #f857a6 0%, #ff5858 100%)',
+          colorPrincipal: '#f857a6',
+          fondoClaro: 'rgba(248, 87, 166, 0.08)',
+          iconoVentas: 'bi-bag-heart-fill',
+        };
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      try {
-        await fetchTipoVenta();
-        await fetchProductos();
-        await fetchSucursal();
-        console.log('productos', productos);
-      } catch (error) {
-        setMsg(error.mensaje);
-      } finally {
-        setLoading(false);
-        inputRef.current?.focus();
-      }
+      await fetchTipoVenta();
+      await fetchStockProductos();
+      setLoading(false);
+      inputRef.current?.focus();
     };
+
     fetchData();
   }, []);
 
   const fetchTipoVenta = async () => {
     try {
-      setLoading(true);
-      const resp = await tipoVenta();
-      console.log('Tipos de Ventas ... ', resp.data);
-      setTipoVta(resp.data);
+      const resp = await allTipoVentas();
+      setTipoVta(resp);
     } catch (error) {
-      console.log('dfafadf', error);
-    } finally {
-      setLoading(false);
+      console.error('Error al obtener Tipo ventas:', error.message);
     }
   };
 
-  const fetchSucursal = async () => {
+  const fetchStockProductos = async () => {
     try {
-      const res = await getSucursal(user.id);
-      setIdSucursal(res.sucursal);
-      console.log('SUCURSAL', res.sucursal);
+      const resp = await productosConStock();
+      console.log('Prod con Stock', resp);
+      setStock(resp);
     } catch (error) {
-      console.log('error', error);
+      console.error('Error al obtener stock:', error.message);
     }
   };
 
   const agregarProductoAVenta = (producto) => {
-    const { nombre, id_producto, precio_venta, stock_por_sucursal } = producto;
+    const { nombre, id_producto, precio_venta, stock_total } = producto;
+    console.log('producto', producto);
 
     const existe = itemsVenta.find(
       (item) => item.id_producto === producto.id_producto
@@ -78,7 +81,7 @@ const Ventas = () => {
         nombre,
         id_producto,
         precio_venta,
-        stock_total: stock_por_sucursal[0].stock_total,
+        stock_total: stock_total,
         cantidad: 1,
         subtotal: producto.precio_venta,
       },
@@ -120,12 +123,8 @@ const Ventas = () => {
     );
 
     const venta = {
-      id_usuario: user.id,
       id_tipo_venta: tipo.id_tipo,
-      id_sucursal: idSucursal,
       porcentaje_aplicado: tipo.porcentajeVenta,
-      /*   monto_descuento: 0, */
-      /*  total: totalVenta, */
       detalles: filtroDetalles,
     };
     console.log('FINAL VTAS ', venta);
@@ -141,141 +140,202 @@ const Ventas = () => {
     }
   };
 
-  const stockProductos = productos
-    .filter((producto) =>
-      producto.stock_por_sucursal?.some(
-        (s) => s.id_sucursal === idSucursal && s.stock_total > 0
-      )
-    )
-    .map((producto) => ({
-      ...producto,
-      stock_por_sucursal: producto.stock_por_sucursal.filter(
-        (s) => s.id_sucursal === idSucursal && s.stock_total > 0
-      ),
-    }));
-
-  console.log('Stock por sucursla', stockProductos);
-
-  /*  const productosFiltrados = stockProductos.filter(
-    (p) =>
-      p.codigo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.nombre?.toLowerCase().includes(searchTerm.toLowerCase())
-  ); */
-
-  /* const handleModalSearch = () => setModalSearch(!modalSearch); */
-
-  const productosFiltrados = stockProductos.filter((p) => {
+  const productosFiltrados = stock.filter((p) => {
     const textoCompleto =
       `${p.nombre} ${p.marca} ${p.modelo} ${p.talle} ${p.color} ${p.codigo}`
         .toLowerCase()
-        .replace(/\s+/g, ''); // Quitamos espacios para búsquedas como "buzocanguromarcaf"
-
+        .replace(/\s+/g, '');
     const termino = searchTerm.toLowerCase().replace(/\s+/g, '');
-
     return textoCompleto.includes(termino);
   });
-
-  useEffect(() => {
-    console.log('ttttttttttttttttttt ', tipo);
-  }, []);
 
   const tventasHabilitadas = tipoVta.filter((tv) => tv.habilitado === true);
 
   return (
     <>
-      <div className="container-fluid py-1 ">
+      <div className="container-fluid p-3">
         {/* Header */}
-
-        <div className="contenedorSeccion1">
-          <p className=" m-0" style={{ fontSize: '24px' }}>
-            🛒{' '}
-          </p>
-
-          <p className="tituloSeccion">Ventas</p>
+        <div className="d-flex align-items-center gap-3 mb-4">
+          <div
+            className="rounded-circle d-flex align-items-center justify-content-center"
+            style={{
+              width: '60px',
+              height: '60px',
+              background: estilos.gradiente,
+            }}
+          >
+            <i className={`bi ${estilos.iconoVentas} text-white fs-3`}></i>
+          </div>
+          <div>
+            <h2
+              className="mb-0 fw-bold"
+              style={{ color: estilos.colorPrincipal }}
+            >
+              Nueva Venta
+            </h2>
+            <p className="text-muted mb-0">
+              Busca y agrega productos a la venta
+            </p>
+          </div>
         </div>
 
-        {/* Card de búsqueda */}
-        <div className="card shadow-sm rounded-3 mb-1 ">
-          <div className="card-body myNavBar px-2">
-            <div className="d-flex flex-wrap align-items-end gap-3">
-              <div className="d-flex w-100  justify-content-center align-items-center gap-5">
-                <label className="fs-5 fs-md-3 fw-bold mb-2 mb-md-0">
-                  Buscar Producto
-                </label>
-
-                <input
-                  type="text"
-                  className="form-control"
-                  style={{ height: '50px', width: '100%', maxWidth: '500px' }}
-                  placeholder="Buscar por nombre + marca + modelo + talle + color"
-                  value={searchTerm}
-                  ref={inputRef}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setSearchTerm(value);
-
-                    const match = stockProductos.find(
-                      (p) =>
-                        p.codigo &&
-                        p.codigo.toString().toLowerCase() ===
-                          value.toLowerCase()
-                    );
-
-                    if (match) {
-                      agregarProductoAVenta(match);
-                      setSearchTerm('');
-                    }
-                  }}
-                />
-                <button
-                  type="button"
-                  className="btn btn-primary btn-ms d-flex align-items-center gap-2"
-                  onClick={() => {
-                    inputRef.current?.focus();
-                    setSearchTerm('');
+        {/* Buscador */}
+        <div
+          className="card border-0 shadow-sm mb-3"
+          style={{ borderRadius: '15px' }}
+        >
+          <div
+            className="card-body p-4"
+            style={{ background: estilos.gradiente }}
+          >
+            <div className="d-flex flex-column flex-lg-row align-items-center gap-3">
+              {/* Icono y Label */}
+              <div className="d-flex align-items-center gap-3 text-white">
+                <div
+                  className="d-flex align-items-center justify-content-center rounded-circle"
+                  style={{
+                    width: '50px',
+                    height: '50px',
+                    backgroundColor: 'rgba(255, 255, 255, 0.25)',
                   }}
                 >
-                  <i className="bi bi-x-circle"></i>
-                  Limpiar
-                </button>
-                <div className="text-white ">
-                  {`Total de Productos : ${productosFiltrados.length} / ${stockProductos.length} `}
+                  <i className="bi bi-search fs-4"></i>
                 </div>
+                <label className="fs-5 fw-bold mb-0 text-nowrap">
+                  Buscar Producto
+                </label>
+              </div>
+
+              {/* Input */}
+              <div className="flex-grow-1 w-100" style={{ maxWidth: '600px' }}>
+                <div className="position-relative">
+                  <i
+                    className="bi bi-upc-scan position-absolute text-muted"
+                    style={{
+                      left: '15px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      fontSize: '1.2rem',
+                    }}
+                  ></i>
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    className="form-control border-0 shadow-sm ps-5"
+                    style={{
+                      height: '55px',
+                      borderRadius: '50px',
+                      fontSize: '1rem',
+                    }}
+                    placeholder="Escanea código o busca por nombre, marca, modelo..."
+                    value={searchTerm}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setSearchTerm(value);
+
+                      const match = stock.find(
+                        (p) =>
+                          p.codigo &&
+                          p.codigo.toString().toLowerCase() ===
+                            value.toLowerCase()
+                      );
+
+                      if (match) {
+                        agregarProductoAVenta(match);
+                        setSearchTerm('');
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Botón Limpiar */}
+              <button
+                type="button"
+                className="btn btn-light border-0 shadow-sm d-flex align-items-center gap-2 px-4"
+                style={{
+                  height: '55px',
+                  borderRadius: '50px',
+                  fontWeight: '600',
+                  minWidth: '130px',
+                }}
+                onClick={() => {
+                  inputRef.current?.focus();
+                  setSearchTerm('');
+                }}
+              >
+                <i className="bi bi-x-circle fs-5"></i>
+                Limpiar
+              </button>
+
+              {/* Contador */}
+              <div
+                className="badge bg-white bg-opacity-25 text-white px-4 py-3 d-flex align-items-center gap-2"
+                style={{
+                  borderRadius: '50px',
+                  fontSize: '0.95rem',
+                  fontWeight: '600',
+                  minWidth: '180px',
+                  justifyContent: 'center',
+                }}
+              >
+                <i className="bi bi-box-seam"></i>
+                <span>
+                  {productosFiltrados.length} / {stock.length}
+                </span>
               </div>
             </div>
 
-            {/* Resultados dinámicos */}
-            {searchTerm && stockProductos && (
-              /*    <div className="list-group mt-3">
-                {productosFiltrados.map((producto) => (
+            {/* Resultados de búsqueda */}
+            {searchTerm && productosFiltrados.length > 0 && (
+              <div
+                className="mt-3 bg-white rounded-4 shadow-lg"
+                style={{ maxHeight: '300px', overflowY: 'auto' }}
+              >
+                {productosFiltrados.slice(0, 10).map((producto) => (
                   <button
                     key={producto.id_producto}
-                    className="list-group-item list-group-item-action "
+                    className="w-100 text-start border-0 bg-transparent p-3 d-flex justify-content-between align-items-center"
+                    style={{
+                      borderBottom: '1px solid #f0f0f0',
+                      transition: 'all 0.2s ease',
+                    }}
                     onClick={() => {
                       agregarProductoAVenta(producto);
                       setSearchTerm('');
                     }}
-                  >
-                    {producto.nombre} - cccc {producto.marca} -{' '}
-                    {producto.modelo} - {producto.talle} - {producto.color} -{' '}
-                    {producto.codigo}
-                  </button>
-                ))}
-              </div> */
-              <div className="list-group mt-3 mx-auto w-50">
-                {productosFiltrados.map((producto) => (
-                  <button
-                    key={producto.id_producto}
-                    className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-                    onClick={() => {
-                      agregarProductoAVenta(producto);
-                      setSearchTerm('');
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor =
+                        estilos.fondoClaro;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
                     }}
                   >
-                    <div className="fw-bold">{producto.nombre}</div>
-                    <div className="text-muted small">
-                      {producto.marca} · {producto.modelo} · {producto.talle} ·{' '}
-                      {producto.color} · {producto.codigo}
+                    <div>
+                      <div className="fw-bold mb-1">{producto.nombre}</div>
+                      <small className="text-muted">
+                        {producto.marca} · {producto.modelo} · {producto.talle}{' '}
+                        · {producto.color}
+                      </small>
+                    </div>
+                    <div className="d-flex align-items-center gap-3">
+                      <span
+                        className="badge"
+                        style={{
+                          backgroundColor: estilos.fondoClaro,
+                          color: estilos.colorPrincipal,
+                          padding: '8px 12px',
+                        }}
+                      >
+                        {producto.codigo}
+                      </span>
+                      <span
+                        className="fw-bold"
+                        style={{ color: estilos.colorPrincipal }}
+                      >
+                        ${producto.precio_venta}
+                      </span>
                     </div>
                   </button>
                 ))}
@@ -284,39 +344,88 @@ const Ventas = () => {
           </div>
         </div>
 
-        {/* Card de tabla y footer */}
+        {/* Tabla de productos */}
         {itemsVenta.length > 0 && (
           <div
-            className="card shadow-sm rounded-3 myNavBar"
-            style={{ height: '60vh', display: 'flex', flexDirection: 'column' }}
+            className="card border-0 shadow-sm"
+            style={{
+              borderRadius: '15px',
+              minHeight: '60vh',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
           >
+            {/* Header de la tabla */}
             <div
-              className="card-body p-2 flex-grow-1 overflow-auto mx-2"
-              style={{ backgroundColor: '#f9f9f9' }}
+              className="card-header border-0 text-white py-3"
+              style={{
+                background: estilos.gradiente,
+                borderRadius: '15px 15px 0 0',
+              }}
             >
-              <table className="table table-bordered table-hover table-sm mb-0 mt-0">
-                <thead className="sticky-header">
+              <div className="d-flex justify-content-between align-items-center">
+                <h5 className="mb-0 fw-bold">
+                  <i className="bi bi-cart3 me-2"></i>
+                  Productos en Venta
+                </h5>
+                <span className="badge bg-white bg-opacity-25 px-3 py-2">
+                  {itemsVenta.length}{' '}
+                  {itemsVenta.length === 1 ? 'producto' : 'productos'}
+                </span>
+              </div>
+            </div>
+
+            {/* Tabla */}
+            <div
+              className="card-body p-0 flex-grow-1 overflow-auto"
+              style={{ backgroundColor: '#fafafa' }}
+            >
+              <table className="table table-hover mb-0">
+                <thead
+                  className="sticky-top"
+                  style={{ backgroundColor: '#f8f9fa' }}
+                >
                   <tr>
-                    <th style={{ width: '40%' }}>Producto</th>
-                    <th style={{ width: '10%' }}>Precio</th>
-                    <th style={{ width: '10%' }}>Cantidad</th>
-                    <th style={{ width: '10%' }}>Stock</th>
-                    <th style={{ width: '10%' }}>Subtotal</th>
-                    <th style={{ width: '5%' }}>Eliminar</th>
+                    <th className="py-3">Producto</th>
+                    <th className="text-center py-3">Precio Unit.</th>
+                    <th className="text-center py-3">Cantidad</th>
+                    <th className="text-center py-3">Stock</th>
+                    <th className="text-end py-3">Subtotal</th>
+                    <th className="text-center py-3"></th>
                   </tr>
                 </thead>
                 <tbody>
                   {itemsVenta.map((item) => (
                     <tr key={item.id_producto}>
-                      <td>{item.nombre}</td>
-                      <td>${item.precio_venta.toFixed(2)}</td>
-                      <td>
+                      <td className="py-3">
+                        <div className="fw-semibold">{item.nombre}</div>
+                      </td>
+                      <td className="text-center py-3">
+                        <span
+                          className="badge"
+                          style={{
+                            backgroundColor: estilos.fondoClaro,
+                            color: estilos.colorPrincipal,
+                            fontSize: '0.9rem',
+                            padding: '6px 12px',
+                          }}
+                        >
+                          ${item.precio_venta.toFixed(2)}
+                        </span>
+                      </td>
+                      <td className="text-center py-3">
                         <input
                           type="number"
                           min="1"
-                          value={item.cantidad}
-                          className="form-control form-control-sm"
                           max={item.stock_total}
+                          value={item.cantidad}
+                          className="form-control form-control-sm text-center fw-bold"
+                          style={{
+                            width: '80px',
+                            margin: '0 auto',
+                            borderRadius: '8px',
+                            border: `2px solid ${estilos.colorPrincipal}40`,
+                          }}
                           onChange={(e) => {
                             let cantidad = parseInt(e.target.value, 10);
                             if (cantidad > item.stock_total)
@@ -334,14 +443,35 @@ const Ventas = () => {
                           }}
                         />
                       </td>
-                      <td>{item?.stock_total}</td>
-                      <td>$ {item.subtotal.toFixed(2)}</td>
-                      <td>
+                      <td className="text-center py-3">
+                        <span
+                          className={`badge ${
+                            item.stock_total < 5
+                              ? 'bg-danger'
+                              : item.stock_total < 10
+                              ? 'bg-warning'
+                              : 'bg-success'
+                          }`}
+                          style={{ fontSize: '0.9rem', padding: '6px 12px' }}
+                        >
+                          {item.stock_total}
+                        </span>
+                      </td>
+                      <td className="text-end py-3">
+                        <span
+                          className="fw-bold fs-5"
+                          style={{ color: estilos.colorPrincipal }}
+                        >
+                          ${item.subtotal.toFixed(2)}
+                        </span>
+                      </td>
+                      <td className="text-center py-3">
                         <button
-                          className="btn btn-danger btn-sm"
+                          className="btn btn-sm btn-danger rounded-circle"
+                          style={{ width: '35px', height: '35px' }}
                           onClick={() => eliminarProducto(item.id_producto)}
                         >
-                          🗑️
+                          <i className="bi bi-trash"></i>
                         </button>
                       </td>
                     </tr>
@@ -350,58 +480,26 @@ const Ventas = () => {
               </table>
             </div>
 
-            {/* Footer fijo abajo */}
-            {/*      <div className="card-footer mx-2 border-top py-3 d-flex flex-wrap align-items-center gap-3">
-              <select
-                className="form-select w-50"
-                value={tipo?.id_tipo || ''}
-                onChange={(e) => {
-                  const selected = tipoVta.find(
-                    (t) => t.id_tipo === parseInt(e.target.value)
-                  );
-                  setTipo(selected);
-                }}
-              >
-                <option value="" disabled>
-                  Tipo Venta
-                </option>
-                {tventasHabilitadas.map((t) => (
-                  <option key={t.id_tipo} value={t.id_tipo}>
-                    {t.tipoVenta}
-                  </option>
-                ))}
-              </select>
-
-              <div className="bg-info d-flex flex-colum">
-                <h4 className="text-dark fw-bold flex-grow-1 text-end mb-0">
-                  Subtotal: ${totalVenta.toFixed(2)}
-                </h4>
-                <h4 className="text-dark fw-bold flex-grow-1 text-end mb-0">
-                  Descuento {tipo?.porcentajeVenta} % : $ {descuento}
-                </h4>
-                <span className="text-dark fw-bold flex-grow-1 text-end mb-0">
-                  Total : $ {subtotal}
-                </span>
-              </div>
-
-              <button
-                className="btn btn-success btn-lg"
-                onClick={() => finalizarVenta()}
-                disabled={!tipo}
-              >
-                Confirmar venta ✅
-              </button>
-            </div> */}
+            {/* Footer con totales */}
             <div
-              className="card-footer border-top p-3 px-5 mt-2 rounded-3 mx-auto"
-              style={{ background: '#a9d0d2ff', width: '99%' }}
+              className="card-footer border-0 p-4"
+              style={{
+                backgroundColor: '#ffffff',
+                borderRadius: '0 0 15px 15px',
+              }}
             >
               <div className="row g-3 align-items-center">
-                {/* Selector de tipo de venta */}
-
-                <div className="col-12 col-md-4">
+                {/* Selector de tipo */}
+                <div className="col-12 col-lg-4">
+                  <label className="form-label fw-semibold small text-muted">
+                    TIPO DE VENTA
+                  </label>
                   <select
-                    className="form-select"
+                    className="form-select form-select-lg border-2"
+                    style={{
+                      borderRadius: '12px',
+                      borderColor: estilos.colorPrincipal,
+                    }}
                     value={tipo?.id_tipo || ''}
                     onChange={(e) => {
                       const selected = tipoVta.find(
@@ -411,7 +509,7 @@ const Ventas = () => {
                     }}
                   >
                     <option value="" disabled>
-                      Tipo Venta
+                      Selecciona un tipo
                     </option>
                     {tventasHabilitadas.map((t) => (
                       <option key={t.id_tipo} value={t.id_tipo}>
@@ -422,69 +520,87 @@ const Ventas = () => {
                 </div>
 
                 {/* Totales */}
-                <div className="col-12 col-md-5">
-                  <div className="rounded p-2 shadow-sm ">
-                    <div className="row mb-1">
-                      <div className="col col-8 fw-bold text-end">
-                        Subtotal:
-                      </div>
-                      <div className="col col-4 text-end fw-bold">
-                        $ {totalVenta.toFixed(2)}
-                      </div>
+                <div className="col-12 col-lg-5">
+                  <div
+                    className="rounded-4 p-3 shadow-sm"
+                    style={{ backgroundColor: estilos.fondoClaro }}
+                  >
+                    <div className="d-flex justify-content-between mb-2">
+                      <span className="fw-semibold">Subtotal:</span>
+                      <span className="fw-bold">${totalVenta.toFixed(2)}</span>
                     </div>
-                    <div className="row mb-1">
-                      <div className="col col-8 fw-bold text-end">
-                        Dto. {tipo?.porcentajeVenta || 0}%:
-                      </div>
-                      <div className="col col-4 text-end text-danger fw-bold">
-                        - $ {descuento.toFixed(2)}
-                      </div>
+                    <div className="d-flex justify-content-between mb-2">
+                      <span className="fw-semibold">
+                        Descuento {tipo?.porcentajeVenta || 0}%:
+                      </span>
+                      <span className="fw-bold text-danger">
+                        -${descuento.toFixed(2)}
+                      </span>
                     </div>
-                    <div className="row">
-                      <div className="col col-8 fw-bold text-end">Total:</div>
-                      <div className="col col-4 text-end fs-4 fw-bold h5 mb-0">
-                        $ {subtotal.toFixed(2)}
-                      </div>
+                    <div className="d-flex justify-content-between pt-2 border-top">
+                      <span className="fw-bold fs-5">TOTAL:</span>
+                      <span
+                        className="fw-bold fs-4"
+                        style={{ color: estilos.colorPrincipal }}
+                      >
+                        ${subtotal.toFixed(2)}
+                      </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Botón */}
-                <div className="col-12 col-md-3 text-md-end text-center">
+                {/* Botón confirmar */}
+                <div className="col-12 col-lg-3">
                   <button
-                    className="btn btn-success btn-lg w-100"
-                    onClick={() => finalizarVenta()}
+                    className="btn btn-lg w-100 text-white fw-bold shadow"
+                    style={{
+                      background: estilos.gradiente,
+                      borderRadius: '12px',
+                      padding: '14px',
+                      border: 'none',
+                      transition: 'all 0.3s ease',
+                    }}
+                    onClick={finalizarVenta}
                     disabled={!tipo}
+                    onMouseEnter={(e) => {
+                      e.target.style.transform = 'translateY(-2px)';
+                      e.target.style.boxShadow = `0 8px 20px ${estilos.colorPrincipal}60`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.transform = 'translateY(0)';
+                      e.target.style.boxShadow = '0 4px 10px rgba(0,0,0,0.1)';
+                    }}
                   >
-                    Confirmar venta ✅
+                    <i className="bi bi-check-circle me-2"></i>
+                    Confirmar Venta
                   </button>
                 </div>
               </div>
             </div>
           </div>
         )}
+
+        {/* Estado vacío */}
+        {itemsVenta.length === 0 && !loading && (
+          <div
+            className="card border-0 shadow-sm text-center py-5"
+            style={{ borderRadius: '15px' }}
+          >
+            <div className="card-body">
+              <i
+                className={`bi ${estilos.iconoVentas} fs-1 mb-3 d-block`}
+                style={{ color: estilos.colorPrincipal, opacity: 0.3 }}
+              ></i>
+              <h4 className="text-muted">Carrito vacío</h4>
+              <p className="text-muted mb-0">
+                Busca productos usando el código de barras o el nombre
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       <Spinner loading={loading} msg={msg} />
-      {/*    <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick={false}
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-        transition={Slide}
-      /> */}
-      {/*  <SearchProductos
-        modalSearch={modalSearch}
-        handleModalSearch={handleModalSearch}
-        productos={productos}
-        agregarProductoAVenta={agregarProductoAVenta}
-      /> */}
     </>
   );
 };

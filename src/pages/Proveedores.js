@@ -15,7 +15,7 @@ const Proveedores = () => {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState();
   const [isEdition, setIsEdition] = useState(false);
-  const { isAdmin } = useAuth();
+  const isAdmin = localStorage.getItem('admin');
 
   const inputs = [
     { nombre: 'nombre', label: 'Nombre' },

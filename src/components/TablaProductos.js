@@ -2,12 +2,12 @@ import React from 'react';
 
 const TablaProductos = ({
   itemsVenta,
-  /*   handleStock,*/
-  updateStock,
-  handleCostoVencimiento,
+  setItemsVenta,
+  /*   handleCostoVencimiento, */
   totalStockProducto,
   eliminarProducto,
 }) => {
+  console.log('first', itemsVenta);
   return (
     <div
       className="card shadow-sm rounded-3"
@@ -23,6 +23,9 @@ const TablaProductos = ({
               <th scope="col" className="col-1  ">
                 Producto
               </th>
+              <th scope="col" className="col-1 text-center ">
+                Codigo
+              </th>
               <th scope="col" className="col-1 text-center">
                 Marca
               </th>
@@ -35,15 +38,7 @@ const TablaProductos = ({
               <th scope="col" className="col-1 text-center">
                 Talle
               </th>
-              <th scope="col" className="col-1 text-center">
-                Brown
-              </th>
-              <th scope="col" className="col-1 text-center">
-                Cervantes
-              </th>
-              <th scope="col" className="col-1 text-center">
-                Crespo
-              </th>
+
               <th scope="col" className="col-1 text-center">
                 Cantidad
               </th>
@@ -65,6 +60,7 @@ const TablaProductos = ({
             {itemsVenta.map((item) => (
               <tr key={item.producto_id}>
                 <td>{item.nombre_producto}</td>
+                <td className="text-center">{item.codigo}</td>
 
                 <td className="text-center">{item.marca}</td>
                 <td className="text-center">{item.modelo}</td>
@@ -72,68 +68,56 @@ const TablaProductos = ({
 
                 <td className="text-center">{item.talle}</td>
 
-                {[1, 2, 3].map((id) => (
-                  <td>
-                    <input
-                      type="number"
-                      value={
-                        item.detalles.find((s) => s.sucursal === id)?.stock ?? 0
-                      }
-                      onChange={(e) =>
-                        updateStock(
-                          item.producto_id,
-                          id,
-                          parseInt(e.target.value) || 0
+                <td>
+                  <input
+                    type="number"
+                    min="1"
+                    value={item.cantidad}
+                    onChange={(e) => {
+                      const nuevaCantidad = parseInt(e.target.value) || 1;
+
+                      setItemsVenta((prev) =>
+                        prev.map((p) =>
+                          p.producto_id === item.producto_id
+                            ? { ...p, cantidad: nuevaCantidad }
+                            : p
                         )
+                      );
+                    }}
+                    className="form-control form-control-sm"
+                    onKeyDown={(e) => {
+                      if (e.key === '.' || e.key === ',' || e.key === 'e') {
+                        e.preventDefault();
                       }
-                      className="form-control form-control-sm"
-                      onKeyDown={(e) => {
-                        if (e.key === '.' || e.key === ',' || e.key === 'e') {
-                          e.preventDefault();
-                        }
-                      }}
-                    />
-                  </td>
-                ))}
+                    }}
+                  />
+                </td>
 
                 <td>
                   <input
                     type="number"
                     min="1"
-                    value={totalStockProducto(item.producto_id)}
-                    className="form-control form-control-sm"
-                    disabled
-                  />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    min="1"
                     value={item.costo}
+                    onChange={(e) => {
+                      const nuevoCosto = parseInt(e.target.value) || 1;
+
+                      setItemsVenta((prev) =>
+                        prev.map((p) =>
+                          p.producto_id === item.producto_id
+                            ? { ...p, costo: nuevoCosto }
+                            : p
+                        )
+                      );
+                    }}
                     className="form-control form-control-sm"
-                    onChange={(e) =>
-                      handleCostoVencimiento(
-                        item.producto_id,
-                        parseFloat(e.target.value),
-                        'costo'
-                      )
-                    }
-                    onBlur={(e) => {
-                      if (
-                        e.target.value === '' ||
-                        parseInt(e.target.value, 10) < 1
-                      ) {
-                        handleCostoVencimiento(item.producto_id, 1, 'costo');
+                    onKeyDown={(e) => {
+                      if (e.key === '.' || e.key === ',' || e.key === 'e') {
+                        e.preventDefault();
                       }
                     }}
                   />
                 </td>
-                <td>
-                  $
-                  {(
-                    (item.costo || 0) * totalStockProducto(item.producto_id)
-                  ).toFixed(2)}
-                </td>
+                <td>{item.cantidad * item.costo}</td>
 
                 {/* <td>
                   <input

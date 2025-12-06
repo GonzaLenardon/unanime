@@ -1,190 +1,44 @@
 import axios from 'axios';
+import instance from './interceptor';
 
 export const addVenta = async (venta) => {
-  try {
-    const url = process.env.REACT_APP_API_URL;
-    const resp = await axios.post(`${url}/ventas`, venta, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      timeout: 10000,
-    });
+  const resp = await instance.post(`/ventas`, venta);
 
-    return resp;
-  } catch (error) {
-    if (error.code === 'ECONNABORTED') {
-      throw new Error(
-        'La consulta tardó más de 5 segundos. Verifica tu conexión.'
-      );
-    } else if (!navigator.onLine) {
-      throw new Error('No tienes conexión a Internet.');
-    } else {
-      throw new Error('Ocurrió un error al obtener los productos.');
-    }
-  }
+  return resp;
 };
 
 export const allVentas = async (fecha) => {
-  try {
-    const url = process.env.REACT_APP_API_URL;
-    const resp = await axios.get(`${url}/ventas`, {
-      params: fecha,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      timeout: 10000,
-    });
+  const resp = await instance.get(`/ventas`, {
+    params: fecha,
+  });
 
-    return resp;
-  } catch (error) {
-    if (error.code === 'ECONNABORTED') {
-      throw new Error(
-        'La consulta tardó más de 5 segundos. Verifica tu conexión.'
-      );
-    } else if (!navigator.onLine) {
-      throw new Error('No tienes conexión a Internet.');
-    } else {
-      throw new Error('Ocurrió un error al obtener los productos.');
-    }
-  }
+  return resp;
 };
 
-export const tipoVenta = async () => {
-  try {
-    const url = process.env.REACT_APP_API_URL;
-    const resp = await axios.get(
-      `${url}/tipoventa`,
-      {},
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        timeout: 10000,
-      }
-    );
-    return resp;
-  } catch (error) {
-    if (error.code === 'ECONNABORTED') {
-      throw new Error(
-        'La consulta tardó más de 5 segundos. Verifica tu conexión.'
-      );
-    } else if (!navigator.onLine) {
-      throw new Error('No tienes conexión a Internet.');
-    } else {
-      throw new Error('Ocurrió un error al obtener los productos.');
-    }
-  }
-};
+/* export const tipoVenta = async () => {
+  const resp = await instance.get(`/tipoventa`);
+  return resp;
+}; */
 
 export const verStock = async (sucursal) => {
-  try {
-    const url = process.env.REACT_APP_API_URL;
-
-    const resp = await axios.get(
-      `${url}/listados/stock/sucursal/${sucursal}`,
-
-      {},
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        timeout: 10000,
-      }
-    );
-
-    return resp;
-  } catch (error) {
-    if (error.code === 'ECONNABORTED') {
-      throw new Error(
-        'La consulta tardó más de 5 segundos. Verifica tu conexión.'
-      );
-    } else if (!navigator.onLine) {
-      throw new Error('No tienes conexión a Internet.');
-    } else {
-      throw new Error('Ocurrió un error al obtener los productos.');
-    }
-  }
+  const resp = await instance.get(`/listados/stock/sucursal/${sucursal}`);
+  return resp;
 };
 
 export const delVenta = async (id) => {
-  try {
-    const url = process.env.REACT_APP_API_URL;
+  const resp = await instance.delete(`/ventas/${id}`);
 
-    const resp = await axios.delete(
-      `${url}/ventas/${id}`,
-      {},
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        timeout: 10000,
-      }
-    );
-
-    return resp.data;
-  } catch (error) {
-    if (error.code === 'ECONNABORTED') {
-      throw new Error(
-        'La consulta tardó más de 5 segundos. Verifica tu conexión.'
-      );
-    } else if (!navigator.onLine) {
-      throw new Error('No tienes conexión a Internet.');
-    } else {
-      const msg =
-        error.response?.data?.error || 'Error desconocido del servidor';
-      throw new Error(msg);
-    }
-  }
+  return resp.data;
 };
 
 export const detallesVentas = async (id) => {
-  try {
-    const url = process.env.REACT_APP_API_URL;
-    const resp = await axios.get(
-      `${url}/ventas/detalles/${id}`,
-      {},
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        timeout: 10000,
-      }
-    );
+  const resp = await instance.get(`/ventas/detalles/${id}`);
 
-    return resp.data;
-  } catch (error) {
-    if (error.code === 'ECONNABORTED') {
-      throw new Error(
-        'La consulta tardó más de 5 segundos. Verifica tu conexión.'
-      );
-    } else if (!navigator.onLine) {
-      throw new Error('No tienes conexión a Internet.');
-    } else {
-      throw new Error('Ocurrió un error al obtener los detalles de la venta.');
-    }
-  }
+  return resp.data;
 };
 
 export const transferirStock = async (data) => {
-  try {
-    const url = process.env.REACT_APP_API_URL;
-    const resp = await axios.post(`${url}/stock/transferir`, data, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      timeout: 10000,
-    });
+  const resp = await instance.post(`/stock/transferir`, data);
 
-    return resp;
-  } catch (error) {
-    if (error.code === 'ECONNABORTED') {
-      throw new Error(
-        'La consulta tardó más de 5 segundos. Verifica tu conexión.'
-      );
-    } else if (!navigator.onLine) {
-      throw new Error('No tienes conexión a Internet.');
-    } else {
-      throw new Error('Ocurrió un error al transferir stock.');
-    }
-  }
+  return resp;
 };

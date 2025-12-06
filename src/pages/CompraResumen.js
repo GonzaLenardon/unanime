@@ -6,6 +6,7 @@ import { ModalDel } from '../components/ModalDel';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import ModalDetalleCompra from '../components/ModalDetalleCompra';
+import { getAxiosErrorMessage } from '../utils/axiosError';
 
 export const CompraResumen = () => {
   const [fecha, setFecha] = useState({ desde: '', hasta: '' });
@@ -78,11 +79,12 @@ export const CompraResumen = () => {
 
   const handleDeleteCompra = async (id) => {
     try {
-      setMsg('Borrando compra');
       setLoading(true);
       setShowDeleteModal(false);
 
       const update = await delCompra(id);
+      setMsg('Borrando compra');
+      console.log('update borrado', update);
       setMsg(update.mensaje);
 
       await new Promise((resolve) => {
@@ -90,14 +92,12 @@ export const CompraResumen = () => {
       });
 
       await fetchResumen();
-
       setCompraSeleccionada(null);
       setLoading(false);
       setMsg();
     } catch (error) {
       console.error('Error al eliminar venta:', error);
-      setMsg(error.message);
-
+      setMsg(getAxiosErrorMessage(error));
       await new Promise((resolve) => {
         setTimeout(resolve, 3000);
       });

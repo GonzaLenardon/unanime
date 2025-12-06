@@ -68,9 +68,8 @@
   /* font-family: Playwrite AU QLD; */
 }
 
-.myNavBar {
-  /* width: 95%; */
-  /* height: 90%; */
+/* .myNavBar {
+
   border-radius: 10px;
   padding: 0.5em 3em;
   border: solid 1px rgba(0, 0, 0, 0.1);
@@ -82,11 +81,11 @@
   background: linear-gradient(
     to top left,
     rgba(9, 93, 237, 0.8) 0%,
-    /* Color base más claro */ rgba(9, 218, 237, 0.8) 80%,
-    /* Transición suave */ rgba(50, 50, 50, 0.6) 100%
-      /* Oscurecido en la esquina superior derecha */
+ rgba(9, 218, 237, 0.8) 80%,
+ rgba(50, 50, 50, 0.6) 100%
+     
   );
-}
+} */
 
 .mySizeText {
   font-size: 1.5em;
@@ -239,136 +238,21 @@
   margin: 15px !important;
 }
 
-/*  NAVBAR */
-
-/* header {
-  position: relative;
-  top: 0;
-  right: 0;
-  left: 0;
-  background-color: rgba(1, 1, 1, 0.7);
-  padding: 0px 10%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  z-index: 9999;
-  border-radius: 5px;
-  height: 80px;
+/*  ======================================
+                NAVBAR
+  ======================================== */
+.custom-nav-link {
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  font-weight: 600;
+  color: white !important; /* Bootstrap pisa esto, por eso usamos !important */
+  background-color: transparent;
 }
 
-.logo {
-  font-size: 25px;
-  text-transform: uppercase;
-  color: wheat;
-  font-weight: 700;
+/* HOVER */
+.custom-nav-link:hover {
+  background-color: white !important; /* Bootstrap otra vez… */
+  color: var(--texto-hover) !important;
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
-
-.header .navigation ul li {
-  list-style: none;
-  float: left;
-  position: relative;
-}
-
-.header .navigation ul li a {
-  font-size: 1.2em;
-  color: wheat;
-  text-decoration: none;
-  padding: 1em;
-  display: block;
-  transition: all 1s ease;
-}
-
-.header .navigation ul li a:hover {
-  background-color: #685cf6;
-}
-
-.header .navigation ul li ul {
-  position: absolute;
-  right: 0;
-  width: 300px;
-  background-color: rgba(1, 1, 1, 0.7);
-  display: none;
-}
-
-.header .navigation ul li ul li a {
-  font-size: 15px;
-  text-transform: capitalize;
-}
-
-.header .navigation ul li ul li ul {
-  position: absolute;
-  top: 0;
-  right: 300px;
-}
-
-.header .navigation ul li ul li {
-  width: 100%;
-}
-
-.header .navigation ul li:hover > ul {
-  display: initial;
-}
-
-#toggle,
-.header label {
-  display: none;
-  cursor: pointer;
-}
-
-.menu {
-  width: 45px;
-  height: 35px;
-}
-
-@media (max-width: 950px) {
-  
-  .mySizeText {
-    font-size: 2rem; 
-    margin-right: 1em;
-  }
-
-  .header label {
-    display: initial;
-  }
-
-  .header {
-    padding: 20px 10%;
-    height: auto;
-  }
-
-  .header .navigation {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background-color: rgb(43, 31, 31);
-    display: none;
-  }
-
-  .header .navigation ul li {
-    width: 100%;
-  }
-
-  .header .navigation ul li a {
-    padding: 8px 30px 8px 20%;
-  }
-
-  .header .navigation ul li ul {
-    position: relative;
-    width: 100%;
-    left: 0;
-  }
-
-  .header .navigation ul li ul li {
-    background-color: rgba(1, 1, 1, 0.7);
-
-    margin-left: 20px;
-  }
-  
- 
-
-  #toggle:checked ~ .navigation {
-    display: block;
-  }
-}
- */

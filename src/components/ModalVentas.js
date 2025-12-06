@@ -69,7 +69,7 @@ const ModalVentas = ({
       setLoading(false);
       setMsg();
     } catch (error) {
-      console.error('Error al eliminar venta:', error);
+      console.error('Error al eliminar venta:', error.response);
       setMsg(error.message);
 
       await new Promise((resolve) => setTimeout(resolve, 3000));

@@ -22,7 +22,7 @@ export const Gastos = () => {
   useEffect(() => {
     fetchGastos();
     fetchTipoGastos();
-    fetchSucursales();
+    /*  fetchSucursales(); */
   }, []);
 
   const fetchGastos = async () => {
@@ -38,7 +38,7 @@ export const Gastos = () => {
     }
   };
 
-  const fetchSucursales = async () => {
+  /*   const fetchSucursales = async () => {
     try {
       setLoading(true);
       console.log('dddddddddddddddddd');
@@ -49,7 +49,7 @@ export const Gastos = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }; */
 
   const fetchTipoGastos = async () => {
     try {
@@ -305,7 +305,7 @@ export const Gastos = () => {
                   ))}
                 </select>
               </div>
-              <div className="py-1 fw-bold">
+              {/*   <div className="py-1 fw-bold">
                 <label>Sucursal</label>
                 <select
                   className="form-select w-50"
@@ -322,7 +322,7 @@ export const Gastos = () => {
                     </option>
                   ))}
                 </select>
-              </div>
+              </div> */}
               <div className="py-1 fw-bold">
                 <label>Observaciones</label>
                 <textarea

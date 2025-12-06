@@ -1,5 +1,6 @@
 import React, { use, useEffect, useState } from 'react';
-import { detallesVentas, tipoVenta } from '../api/ventas';
+import { detallesVentas } from '../api/ventas';
+import { allTipoVentas } from '../api/tipoVentas';
 import ModalSeleccionProducto from '../components/ModalSeleccionarProducto';
 import { useGestion } from '../context/UserContext';
 import { toast } from 'react-toastify'; // Opcional si usás notificaciones
@@ -79,7 +80,7 @@ const CambioProducto = () => {
   };
 
   const tVentas = async () => {
-    const resp = await tipoVenta();
+    const resp = await allTipoVentas();
     setTiposVentas(resp.data);
   };
 
