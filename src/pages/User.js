@@ -218,7 +218,7 @@ const User = () => {
                     Tipo Empleado
                   </option>
 
-                  <option key="admin" value="supervisor">
+                  <option key="admin" value="admin">
                     Administrador
                   </option>
                   <option key="operador" value="operador">
