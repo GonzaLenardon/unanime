@@ -258,6 +258,28 @@ const Productos = () => {
     setComprasProd([]);
   };
 
+  const id_sucursal = localStorage.getItem('sucursal_id');
+
+  // Definir estilos según sucursal
+  const estilos =
+    id_sucursal === '1'
+      ? {
+          // SUCURSAL 1: Estilo Masculino (Púrpura-Azul)
+          gradiente: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          colorPrincipal: '#667eea',
+          colorSecundario: '#764ba2',
+          textoHover: '#667eea',
+          nombreTienda: 'Unanime Man',
+        }
+      : {
+          // SUCURSAL 2: Estilo Femenino (Rosa-Coral)
+          gradiente: 'linear-gradient(135deg, #f857a6 0%, #ff5858 100%)',
+          colorPrincipal: '#e386b3ff',
+          colorSecundario: '#ff5858',
+          textoHover: '#f857a6',
+          nombreTienda: 'Unanime Woman',
+        };
+
   return (
     <div className="container-fluid p-1">
       <div className="contenedorSeccion1">
@@ -288,43 +310,11 @@ const Productos = () => {
         </div>
       </div>
 
-      {/* <div className="card-body myNavBar mb-3">
-        <div className="d-flex flex-wrap align-items-end gap-3">
-          <div className="d-flex flex-column flex-md-row w-100 justify-content-center align-items-center gap-1 gap-md-5 p-2">
-            <label className="fs-5 fs-md-3 fw-bold mb-2 mb-md-0">
-              Buscar Producto
-            </label>
-            <input
-              ref={inputRef}
-              type="text"
-              className="form-control"
-              style={{ height: '50px', width: '100%', maxWidth: '500px' }}
-              placeholder="Buscar por nombre + marca + modelo + talle + color"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-
-            <button
-              type="button"
-              className="btn btn-primary btn-ms d-flex align-items-center gap-2"
-              onClick={() => {
-                setSearchTerm('');
-                inputRef.current?.focus();
-              }}
-            >
-              <i className="bi bi-x-circle"></i>
-              Limpiar
-            </button>
-            <div className="text-white">
-              {`Total de Productos : ${productosFiltrados.length} / ${productos.length}`}
-            </div>
-          </div>
-        </div>
-      </div> */}
       <div
         className="card border-0 shadow-sm mb-4"
         style={{
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: estilos.gradiente,
+
           borderRadius: '15px',
         }}
       >

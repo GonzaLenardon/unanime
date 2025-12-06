@@ -64,216 +64,6 @@ export const Nav = () => {
 
   return (
     <>
-      {/* <nav className="navbar navbar-expand-lg rounded-3 myNavBar">
-        <div className="container-fluid px-3 px-md-5">
-          <Link className="navbar-brand" to="/home">
-         
-            <img className="logo" src={home} alt="home" />
-          </Link>
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNavAltMarkup"
-            aria-controls="navbarNavAltMarkup"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
-
-          <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
-            <div className="navbar-nav me-auto fs-4 fw-bold">
-              <Link
-                className="nav-link "
-                to="/productos"
-                onClick={handleNavLinkClick}
-              >
-                Productos
-              </Link>
-              {isAdmin && (
-                <Link
-                  className="nav-link"
-                  to="/proveedores"
-                  onClick={handleNavLinkClick}
-                >
-                  Proveedores
-                </Link>
-              )}
-              <Link
-                className="nav-link"
-                to="/ventas"
-                onClick={handleNavLinkClick}
-              >
-                Ventas
-              </Link>
-              {isAdmin && (
-                <Link
-                  className="nav-link"
-                  to="/compras"
-                  translate="no"
-                  onClick={handleNavLinkClick}
-                >
-                  Stock
-                </Link>
-              )}
-              {isAdmin && (
-                <Link
-                  className="nav-link"
-                  to="/gastos"
-                  translate="no"
-                  onClick={handleNavLinkClick}
-                >
-                  Gastos
-                </Link>
-              )}
-
-              <Link
-                className="nav-link"
-                to="/cambios"
-                translate="no"
-                onClick={handleNavLinkClick}
-              >
-                Cambios
-              </Link>
-
-              {isAdmin && (
-                <ul className="nav px-2">
-                  <li className="nav-item dropdown">
-                    <a
-                      className="nav-link dropdown-toggle"
-                      id="myLinka"
-                      data-bs-toggle="dropdown"
-                      href="#"
-                      role="button"
-                      aria-expanded="false"
-                    >
-                      Tipos
-                    </a>
-                    <ul className="dropdown-menu">
-                      <li>
-                        <Link
-                          className="dropdown-item"
-                          to="/tipoventas"
-                          translate="no"
-                          onClick={handleNavLinkClick}
-                        >
-                          Ventas
-                        </Link>
-                      </li>
-                      <li>
-                        <Link
-                          className="dropdown-item"
-                          to="/gastos/tipos"
-                          translate="no"
-                          onClick={handleNavLinkClick}
-                        >
-                          Gastos
-                        </Link>
-                      </li>
-
-                      <li>
-                        <Link
-                          className="dropdown-item"
-                          to="/usuarios"
-                          translate="no"
-                          onClick={handleNavLinkClick}
-                        >
-                          Usuarios
-                        </Link>
-                      </li>
-                    </ul>
-                  </li>
-                </ul>
-              )}
-              <ul className="nav px-2">
-                <li className="nav-item dropdown">
-                  <a
-                    className="nav-link dropdown-toggle"
-                    id="myLinka"
-                    data-bs-toggle="dropdown"
-                    href="#"
-                    role="button"
-                    aria-expanded="false"
-                  >
-                    Listados
-                  </a>
-                  <ul className="dropdown-menu">
-                    {isAdmin && (
-                      <>
-                        <li>
-                          <Link
-                            className="dropdown-item"
-                            to="/listado/compra"
-                            onClick={handleNavLinkClick}
-                          >
-                            Compras
-                          </Link>
-                        </li>
-
-                        <li>
-                          <Link
-                            className="dropdown-item"
-                            to="/listado/gastos"
-                            onClick={handleNavLinkClick}
-                          >
-                            Gastos
-                          </Link>
-                        </li>
-
-                        <li>
-                          <Link
-                            className="dropdown-item"
-                            to="/listado/producto"
-                            onClick={handleNavLinkClick}
-                          >
-                            Productos
-                          </Link>
-                        </li>
-
-                      
-                      </>
-                    )}
-                    <li>
-                      <Link
-                        className="dropdown-item"
-                        to="/listado/venta"
-                        onClick={handleNavLinkClick}
-                      >
-                        Ventas Totales
-                      </Link>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-            </div>
-
-            <Reloj />
-            <div className="dropdown">
-              <button
-                className="btn btn-primary dropdown-toggle"
-                type="button"
-                id="dropdownMenuButton1"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                {usuario}
-              </button>
-              <ul
-                className="dropdown-menu responsive-dropdown"
-                aria-labelledby="dropdownMenuButton1"
-              >
-                <li>
-                  <button className="dropdown-item" onClick={logout}>
-                    Logout
-                  </button>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </nav> */}
-
       <nav
         className="navbar navbar-expand-lg rounded-4 shadow-lg mb-3 d-flex"
         style={{
@@ -449,6 +239,7 @@ export const Nav = () => {
                       3
                     </span>
                   </a>
+
                   <ul
                     className="dropdown-menu border-0 shadow-lg mt-2"
                     style={{ borderRadius: '15px' }}
@@ -478,23 +269,39 @@ export const Nav = () => {
                         <span className="fw-semibold">Ventas</span>
                       </Link>
                     </li>
+
                     <li>
                       <hr className="dropdown-divider" />
                     </li>
+
+                    {/* ✅ CORRECCIÓN: Cambiar nav-link por dropdown-item */}
                     <li>
                       <Link
-                        className="nav-link text-white px-4 py-2 custom-nav-link"
+                        className="dropdown-item py-2 px-4"
                         to="/gastos/tipos"
                         onClick={handleNavLinkClick}
-                        style={{ '--texto-hover': estilos.textoHover }}
+                        style={{
+                          transition: 'all 0.2s ease',
+                          borderRadius: '10px',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.backgroundColor = '#ffc10715';
+                          e.target.style.color = '#ffc107';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.backgroundColor = 'transparent';
+                          e.target.style.color = 'inherit';
+                        }}
                       >
                         <i className="bi bi-cash-stack me-2 text-warning"></i>
                         <span className="fw-semibold">Gastos</span>
                       </Link>
                     </li>
+
                     <li>
                       <hr className="dropdown-divider" />
                     </li>
+
                     <li>
                       <Link
                         className="dropdown-item py-2 px-4"
@@ -524,7 +331,7 @@ export const Nav = () => {
               {/* Dropdown Listados */}
               <div className="nav-item dropdown">
                 <a
-                  className="nav-link dropdown-toggle text-white px-4 py-2"
+                  className="nav-link dropdown-toggle text-white px-4 py-2 d-flex align-items-center gap-2"
                   href="#"
                   role="button"
                   data-bs-toggle="dropdown"
@@ -536,7 +343,19 @@ export const Nav = () => {
                 >
                   <i className="bi bi-list-ul me-2"></i>
                   Listados
+                  {/* ✅ CORRECCIÓN: Agregar badge con número 4 */}
+                  <span
+                    className="badge bg-white"
+                    style={{
+                      fontSize: '0.7rem',
+                      borderRadius: '8px',
+                      color: estilos.colorPrincipal,
+                    }}
+                  >
+                    {isAdmin ? '4' : '1'}
+                  </span>
                 </a>
+
                 <ul
                   className="dropdown-menu border-0 shadow-lg mt-2"
                   style={{ borderRadius: '15px' }}
@@ -565,9 +384,11 @@ export const Nav = () => {
                           <span className="fw-semibold">Compras</span>
                         </Link>
                       </li>
+
                       <li>
                         <hr className="dropdown-divider" />
                       </li>
+
                       <li>
                         <Link
                           className="dropdown-item py-2 px-4"
@@ -590,9 +411,11 @@ export const Nav = () => {
                           <span className="fw-semibold">Gastos</span>
                         </Link>
                       </li>
+
                       <li>
                         <hr className="dropdown-divider" />
                       </li>
+
                       <li>
                         <Link
                           className="dropdown-item py-2 px-4"
@@ -618,11 +441,13 @@ export const Nav = () => {
                           <span className="fw-semibold">Productos</span>
                         </Link>
                       </li>
+
                       <li>
                         <hr className="dropdown-divider" />
                       </li>
                     </>
                   )}
+
                   <li>
                     <Link
                       className="dropdown-item py-2 px-4"
