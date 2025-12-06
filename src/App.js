@@ -22,15 +22,13 @@ import VentasPorSucursales from './pages/VentasPorSucursales';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
-  const nombreSucursal = localStorage.getItem('NombreSucursal');
-
   const navegacion = [
     { path: '/home', admin: false, element: <Home /> },
     { path: '/productos', admin: false, element: <Productos /> },
-    { path: '/proveedores', admin: true, element: <Proveedores /> },
+    { path: '/proveedores', admin: false, element: <Proveedores /> },
     { path: '/ventas', admin: false, element: <Ventas /> },
-    { path: '/compras', admin: true, element: <Compras /> },
-    { path: '/listado/compra', admin: true, element: <CompraResumen /> },
+    { path: '/compras', admin: false, element: <Compras /> },
+    { path: '/listado/compra', admin: false, element: <CompraResumen /> },
     { path: '/listado/venta', admin: false, element: <VentasResumen /> },
     /*  {
       path: '/listado/ventas/sucursales',
@@ -42,12 +40,12 @@ function App() {
       admin: false,
       element: <ComprasVentasProductos />,
     },
-    { path: '/listado/gastos', admin: true, element: <GastosResumen /> },
-    { path: '/tipoventas', admin: true, element: <TipoVentas /> },
-    { path: '/gastos/tipos', admin: true, element: <TipoGastos /> },
-    { path: '/gastos', admin: true, element: <Gastos /> },
+    { path: '/listado/gastos', admin: false, element: <GastosResumen /> },
+    { path: '/tipoventas', admin: false, element: <TipoVentas /> },
+    { path: '/gastos/tipos', admin: false, element: <TipoGastos /> },
+    { path: '/gastos', admin: false, element: <Gastos /> },
     { path: '/cambios', admin: false, element: <CambioProducto /> },
-    { path: '/usuarios', admin: true, element: <User /> },
+    { path: '/usuarios', admin: false, element: <User /> },
     { path: '*', admin: false, element: <Navigate to="/home" /> },
   ];
 

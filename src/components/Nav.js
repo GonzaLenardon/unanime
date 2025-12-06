@@ -275,7 +275,7 @@ export const Nav = () => {
       </nav> */}
 
       <nav
-        className="navbar navbar-expand-lg rounded-4 shadow-lg mb-3"
+        className="navbar navbar-expand-lg rounded-4 shadow-lg mb-3 d-flex"
         style={{
           background: estilos.gradiente,
           padding: '1rem 0',
