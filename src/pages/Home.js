@@ -475,6 +475,7 @@ const Home = () => {
                         >
                           <div className="col-5 fw-semibold">
                             {v.tipo_venta}
+                            {v.id_tipo_venta}
                           </div>
                           <div className="col-3 text-center">
                             <span className="badge bg-dark">

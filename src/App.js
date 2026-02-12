@@ -44,7 +44,7 @@ function App() {
     { path: '/tipoventas', admin: false, element: <TipoVentas /> },
     { path: '/gastos/tipos', admin: false, element: <TipoGastos /> },
     { path: '/gastos', admin: false, element: <Gastos /> },
-    /*   { path: '/cambios', admin: false, element: <CambioProducto /> }, */
+    { path: '/cambios', admin: false, element: <CambioProducto /> },
     { path: '/usuarios', admin: false, element: <User /> },
     { path: '*', admin: false, element: <Navigate to="/home" /> },
   ];

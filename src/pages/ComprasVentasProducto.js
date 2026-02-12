@@ -1,13 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { allproductos, addProductos, upProductos } from '../api/productos';
+import { allproductos } from '../api/productos';
 import { ToastContainer, toast, Slide } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Spinner from '../components/spinner';
-import { useGestion } from '../context/UserContext';
-import { Modal, Button } from 'react-bootstrap';
+
 import { useNavigate } from 'react-router-dom';
-import { auth } from '../api/allUsuarios';
-import { useAuth } from '../context/AuthContext';
 
 import { comprasProducto, ventasProducto } from '../api/listados';
 
@@ -17,31 +14,28 @@ import ModalCompras from '../components/ModalCompras';
 const ComprasVentasProductos = () => {
   const [modal, setModal] = useState(false);
   const [nuevoProducto, setNuevoProducto] = useState({});
+  const [productos, setProductos] = useState([]);
   const [isEdition, setIsedition] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const { productos, fetchProductos } = useGestion();
+
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState(false);
   const [showModalDetalles, setShowModalDetalles] = useState(false);
-  const [comprasProd, setComprasProd] = useState([]);
+  const [comprasProd, setComprasProd] = useState();
 
   const [showModalVentas, setShowModalVentas] = useState(false);
-  const [ventasProd, setVentasProd] = useState([]);
+  const [ventasProd, setVentasProd] = useState();
   const scrollRef = useRef(null);
 
-  const { user } = useAuth();
   const navigator = useNavigate();
 
   useEffect(() => {
-    if (!user) {
-      navigator('/');
-      return; // ⛔ importante: evita que siga ejecutando fetchData
-    }
-
     const fetchData = async () => {
       setLoading(true);
       try {
-        await fetchProductos();
+        const res = await allproductos();
+
+        setProductos(res);
       } catch (error) {
         setMsg(error.message || 'Error al obtener productos');
         console.log('Error desde productos:', error);
@@ -51,17 +45,17 @@ const ComprasVentasProductos = () => {
     };
 
     fetchData();
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     console.log(' MMMMMMMMMM ', nuevoProducto);
   }, [nuevoProducto]);
 
-  const modalNew = () => {
+  /*   const modalNew = () => {
     setModal(!modal);
     setNuevoProducto({});
     setIsedition(false);
-  };
+  }; */
 
   const productosFiltrados = productos.filter(
     (p) =>
@@ -92,7 +86,7 @@ const ComprasVentasProductos = () => {
       setMsg('Buscando ventas ...');
       setLoading(true);
       const resp = await ventasProducto(idProd);
-      console.log('Ventas por producto', resp);
+
       setVentasProd(resp.data);
       setShowModalVentas(true);
     } catch (error) {
@@ -262,19 +256,24 @@ const ComprasVentasProductos = () => {
         handleClose={handleCloseModalDetalles}
         compras={comprasProd}
       /> */}
-      <ModalCompras
-        showModalDetalles={showModalDetalles}
-        handleClose={handleCloseModalDetalles}
-        compras={comprasProd}
-        setCompras={setComprasProd}
-      />
 
-      <ModalVentas
-        showModalVentas={showModalVentas}
-        handleCloseVentas={handleCloseVentas}
-        ventas={ventasProd}
-        setVentas={setVentasProd}
-      />
+      {comprasProd && (
+        <ModalCompras
+          showModalDetalles={showModalDetalles}
+          handleClose={handleCloseModalDetalles}
+          compras={comprasProd}
+          setCompras={setComprasProd}
+        />
+      )}
+
+      {ventasProd && (
+        <ModalVentas
+          showModalVentas={showModalVentas}
+          handleCloseVentas={handleCloseVentas}
+          ventas={ventasProd}
+          setVentas={setVentasProd}
+        />
+      )}
 
       <ToastContainer
         position="top-right"

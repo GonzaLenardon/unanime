@@ -183,7 +183,7 @@ const Compras = () => {
             >
               Registro de Compras
             </h2>
-            <p className="text-muted mb-0">
+            <p className="mb-0" style={{ color: estilos.colorPrincipal }}>
               Gestiona el ingreso de stock y productos
             </p>
           </div>

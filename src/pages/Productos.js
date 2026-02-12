@@ -12,9 +12,7 @@ import ImprimirProd from '../components/ImprimirProd';
 import { ImprimirEtiquetas } from '../components/ImprimirEtiquetas';
 
 const Productos = () => {
-  // ✅ AGREGAR ESTE ESTADO
   const [productos, setProductos] = useState([]);
-
   const [modal, setModal] = useState(false);
   const [nuevoProducto, setNuevoProducto] = useState({});
   const [isEdition, setIsedition] = useState(false);
@@ -27,9 +25,7 @@ const Productos = () => {
   const [productoStock, setProductoStock] = useState({});
   const inputRef = useRef(null);
 
-  // ✅ CORRECCIÓN: Agregar comillas
-
-  const isAdmin = localStorage.getItem('admin') === 'true'; // Ajusta según tu lógica
+  const isAdmin = localStorage.getItem('admin') === 'true';
 
   const navigator = useNavigate();
 
@@ -49,6 +45,8 @@ const Productos = () => {
   const validarProducto = () => {
     console.log('nuevo producto', nuevoProducto);
     for (const campo of prod) {
+      if (campo.nombre === 'codigo') continue;
+
       let valor = nuevoProducto[campo.nombre];
 
       if (campo.nombre === 'observaciones' && (!valor || valor.trim() === '')) {
@@ -81,7 +79,7 @@ const Productos = () => {
         prod.modelo === newProducto.modelo &&
         prod.color === newProducto.color &&
         prod.talle === newProducto.talle &&
-        prod.id_producto !== newProducto.id_producto
+        prod.id_producto !== newProducto.id_producto,
     );
 
     if (existe) {
@@ -100,19 +98,18 @@ const Productos = () => {
     fetchProductos();
   }, []);
 
-  // ✅ CORRECCIÓN: Guardar productos en estado
   const fetchProductos = async () => {
     try {
       setLoading(true);
       setMsg('');
       const data = await allproductos();
       console.log('todos los productos', data);
-      setProductos(data); // ✅ CRÍTICO
+      setProductos(data);
     } catch (error) {
       setMsg(
         error.response?.data?.error ||
           error.message ||
-          'Error al obtener productos'
+          'Error al obtener productos',
       );
       console.log('Error desde productos:', error);
       setProductos([]);
@@ -240,18 +237,13 @@ const Productos = () => {
     } catch (error) {
       console.error(
         'Error al consultar las compras del Productos:',
-        error.message
+        error.message,
       );
     } finally {
       setLoading(false);
       setMsg();
     }
   };
-
-  /*   const handleIntercambioStock = async (e) => {
-    setProductoStock(e);
-    setModalIntercambio(true);
-  }; */
 
   const handleCloseModalDetalles = (p) => {
     setShowModalDetalles(false);
@@ -260,67 +252,79 @@ const Productos = () => {
 
   const id_sucursal = localStorage.getItem('sucursal_id');
 
-  // Definir estilos según sucursal
   const estilos =
     id_sucursal === '1'
       ? {
-          // SUCURSAL 1: Estilo Masculino (Púrpura-Azul)
           gradiente: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           colorPrincipal: '#667eea',
-          colorSecundario: '#764ba2',
-          textoHover: '#667eea',
-          nombreTienda: 'Unanime Man',
+          fondoClaro: 'rgba(102, 126, 234, 0.08)',
+          border: '#667eea',
         }
       : {
-          // SUCURSAL 2: Estilo Femenino (Rosa-Coral)
           gradiente: 'linear-gradient(135deg, #f857a6 0%, #ff5858 100%)',
-          colorPrincipal: '#e386b3ff',
-          colorSecundario: '#ff5858',
-          textoHover: '#f857a6',
-          nombreTienda: 'Unanime Woman',
+          colorPrincipal: '#f857a6',
+          fondoClaro: 'rgba(248, 87, 166, 0.08)',
+          border: '#d3ababff',
         };
 
   return (
-    <div className="container-fluid p-1">
-      <div className="contenedorSeccion1">
-        <p className="m-0" style={{ fontSize: '24px' }}>
-          📦
-        </p>
+    <div className="container-fluid p-3">
+      {/* Header */}
+      <div className="d-flex align-items-center gap-3 mb-4">
+        <div className="d-flex align-items-center gap-3 text-white">
+          <div
+            className="rounded-circle d-flex align-items-center justify-content-center"
+            style={{
+              width: '60px',
+              height: '60px',
+              background: estilos.gradiente,
+            }}
+          >
+            <i className={`bi bi-box-seam fs-4 text-white fs-3`}></i>
+          </div>
+          <div>
+            <h2
+              className="mb-0 fw-bold"
+              style={{ color: estilos.colorPrincipal }}
+            >
+              Productos
+            </h2>
+            <small className="" style={{ color: estilos.colorPrincipal }}>
+              Gestiona tu catálogo
+            </small>
+          </div>
+        </div>
 
-        <p className="tituloSeccion">Productos</p>
-        <div
-          className={`d-flex flex-grow-1 ms-3 ${
-            isAdmin ? 'justify-content-between' : 'justify-content-end'
-          }`}
-        >
+        <div className="d-flex align-items-center gap-3">
           {isAdmin && (
             <button
               type="button"
-              className="btn btn-success btn-ms d-flex align-items-center gap-2"
+              className="btn btn-light fw-semibold shadow-sm d-flex align-items-center gap-2 text-white"
               onClick={modalNew}
+              style={{
+                borderRadius: '12px',
+                padding: '10px 20px',
+                background: estilos.gradiente,
+                opacity: 0.75,
+              }}
             >
-              <span className="d-none d-sm-inline">Nuevo</span>
               <i className="bi bi-plus-circle"></i>
+              <span className="d-none d-sm-inline">Nuevo Producto</span>
             </button>
           )}
-
-          <div className="d-flex me-5">
-            <ImprimirEtiquetas productos={productosFiltrados} />
-          </div>
         </div>
       </div>
 
+      {/* Buscador */}
       <div
         className="card border-0 shadow-sm mb-4"
         style={{
           background: estilos.gradiente,
-
           borderRadius: '15px',
         }}
       >
         <div className="card-body p-4">
           <div className="d-flex flex-column flex-lg-row align-items-center gap-3">
-            {/* Icono y Label */}
             <div className="d-flex align-items-center gap-3 text-white">
               <div
                 className="d-flex align-items-center justify-content-center rounded-circle bg-white bg-opacity-25"
@@ -333,7 +337,6 @@ const Productos = () => {
               </label>
             </div>
 
-            {/* Input de búsqueda */}
             <div className="flex-grow-1 w-100" style={{ maxWidth: '600px' }}>
               <div className="position-relative">
                 <i
@@ -362,7 +365,6 @@ const Productos = () => {
               </div>
             </div>
 
-            {/* Botón Limpiar */}
             <button
               type="button"
               className="btn btn-light border-0 shadow-sm d-flex align-items-center gap-2 px-4"
@@ -381,7 +383,6 @@ const Productos = () => {
               Limpiar
             </button>
 
-            {/* Contador de productos */}
             <div
               className="badge bg-white bg-opacity-25 text-white px-4 py-3 d-flex align-items-center gap-2"
               style={{
@@ -401,478 +402,365 @@ const Productos = () => {
         </div>
       </div>
 
-      {/* CSS adicional */}
+      {/* TABLA COMPLETAMENTE REDISEÑADA - LEGIBLE Y CLARA */}
+      <div className="card border-0 shadow-sm">
+        <div className="card-body p-0">
+          <div style={{ overflowX: 'auto' }}>
+            <table className="table mb-0" style={{ minWidth: '1400px' }}>
+              <thead style={{ backgroundColor: '#f8f9fa' }}>
+                <tr>
+                  <th
+                    className="py-3 px-4 fw-bold"
+                    style={{
+                      fontSize: '0.85rem',
+                      color: '#495057',
+                      borderBottom: `3px solid ${estilos.border}`,
+                      width: '250px',
+                    }}
+                  >
+                    PRODUCTO
+                  </th>
+                  <th
+                    className="py-3 px-4 fw-bold"
+                    style={{
+                      fontSize: '0.85rem',
+                      color: '#495057',
+                      borderBottom: `3px solid ${estilos.border}`,
+                      width: '120px',
+                    }}
+                  >
+                    CÓDIGO
+                  </th>
+
+                  <th
+                    className="py-3 px-4 fw-bold"
+                    style={{
+                      fontSize: '0.85rem',
+                      color: '#495057',
+                      borderBottom: `3px solid ${estilos.border}`,
+                      width: '180px',
+                    }}
+                  >
+                    MARCA
+                  </th>
+                  <th
+                    className="py-3 px-4 fw-bold"
+                    style={{
+                      fontSize: '0.85rem',
+                      color: '#495057',
+                      borderBottom: `3px solid ${estilos.border}`,
+                      width: '180px',
+                    }}
+                  >
+                    MODELO
+                  </th>
+                  <th
+                    className="py-3 px-4 fw-bold text-center"
+                    style={{
+                      fontSize: '0.85rem',
+                      color: '#495057',
+                      borderBottom: `3px solid ${estilos.border}`,
+                      width: '100px',
+                    }}
+                  >
+                    TALLE
+                  </th>
+                  <th
+                    className="py-3 px-4 fw-bold text-center"
+                    style={{
+                      fontSize: '0.85rem',
+                      color: '#495057',
+                      borderBottom: `3px solid ${estilos.border}`,
+                      width: '120px',
+                    }}
+                  >
+                    COLOR
+                  </th>
+                  <th
+                    className="py-3 px-4 fw-bold text-end"
+                    style={{
+                      fontSize: '0.85rem',
+                      color: '#495057',
+                      borderBottom: `3px solid ${estilos.border}`,
+                      width: '130px',
+                    }}
+                  >
+                    PRECIO
+                  </th>
+                  <th
+                    className="py-3 px-4 fw-bold text-center"
+                    style={{
+                      fontSize: '0.85rem',
+                      color: '#495057',
+                      borderBottom: `3px solid ${estilos.border}`,
+                      width: '100px',
+                    }}
+                  >
+                    STOCK
+                  </th>
+                  {isAdmin && (
+                    <th
+                      className="py-3 px-4 fw-bold text-center"
+                      style={{
+                        fontSize: '0.85rem',
+                        color: '#495057',
+                        borderBottom: `3px solid ${estilos.border}`,
+                        width: '220px',
+                      }}
+                    >
+                      ACCIONES
+                    </th>
+                  )}
+                </tr>
+              </thead>
+
+              <tbody>
+                {productosFiltrados.map((p, index) => (
+                  <tr
+                    key={index}
+                    style={{
+                      transition: 'all 0.2s ease',
+                      backgroundColor: index % 2 === 0 ? '#ffffff' : '#f8f9fa',
+                    }}
+                    className="producto-row"
+                  >
+                    <td
+                      className="py-4 px-4"
+                      style={{ verticalAlign: 'middle' }}
+                    >
+                      <span
+                        className="text-dark fw-bold"
+                        style={{
+                          fontSize: '1.2rem',
+                          display: 'block',
+                          lineHeight: '1.4',
+                        }}
+                      >
+                        {p.nombre}
+                      </span>
+                    </td>
+
+                    {/* Código */}
+                    <td
+                      className="py-4 px-4"
+                      style={{ verticalAlign: 'middle' }}
+                    >
+                      <span
+                        className="d-inline-block px-3 py-2 rounded fw-bold text-white"
+                        style={{
+                          fontSize: '0.85rem',
+                          background: estilos.gradiente,
+                          letterSpacing: '0.5px',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {p.codigo}
+                      </span>
+                    </td>
+
+                    {/* Nombre */}
+
+                    {/* Marca */}
+                    <td
+                      className="py-4 px-4"
+                      style={{ verticalAlign: 'middle' }}
+                    >
+                      <span
+                        className="text-dark"
+                        style={{
+                          fontSize: '0.9rem',
+                          fontWeight: '500',
+                        }}
+                      >
+                        {p.marca}
+                      </span>
+                    </td>
+
+                    {/* Modelo */}
+                    <td
+                      className="py-4 px-4"
+                      style={{ verticalAlign: 'middle' }}
+                    >
+                      <span
+                        className="text-muted"
+                        style={{
+                          fontSize: '0.9rem',
+                          fontWeight: '500',
+                        }}
+                      >
+                        {p.modelo}
+                      </span>
+                    </td>
+
+                    {/* Talle */}
+                    <td
+                      className="py-4 px-4 text-center"
+                      style={{ verticalAlign: 'middle' }}
+                    >
+                      <span
+                        className="d-inline-block px-3 py-2 rounded-pill fw-semibold"
+                        style={{
+                          fontSize: '0.85rem',
+                          backgroundColor: '#e0f2fe',
+                          color: '#0369a1',
+                          border: '2px solid #bae6fd',
+                          minWidth: '60px',
+                        }}
+                      >
+                        {p.talle}
+                      </span>
+                    </td>
+
+                    {/* Color */}
+                    <td
+                      className="py-4 px-4 text-center"
+                      style={{ verticalAlign: 'middle' }}
+                    >
+                      <span
+                        className="d-inline-block px-3 py-2 rounded-pill fw-semibold"
+                        style={{
+                          fontSize: '0.85rem',
+                          backgroundColor: '#fef3c7',
+                          color: '#92400e',
+                          border: '2px solid #fde68a',
+                          minWidth: '80px',
+                        }}
+                      >
+                        {p.color}
+                      </span>
+                    </td>
+
+                    {/* Precio */}
+                    <td
+                      className="py-4 px-4 text-end"
+                      style={{ verticalAlign: 'middle' }}
+                    >
+                      <span
+                        className="fw-bold"
+                        style={{
+                          fontSize: '1.1rem',
+                          color: '#059669',
+                          fontFamily: 'monospace',
+                        }}
+                      >
+                        ${parseFloat(p.precio_venta).toFixed(2)}
+                      </span>
+                    </td>
+
+                    {/* Stock */}
+                    <td
+                      className="py-4 px-4 text-center"
+                      style={{ verticalAlign: 'middle' }}
+                    >
+                      <div
+                        className={`d-inline-flex align-items-center justify-content-center rounded-circle fw-bold ${
+                          p.stock_total > 10
+                            ? 'text-success'
+                            : p.stock_total > 0
+                              ? 'text-warning'
+                              : 'text-danger'
+                        }`}
+                        style={{
+                          width: '50px',
+                          height: '50px',
+                          fontSize: '1.1rem',
+                          backgroundColor:
+                            p.stock_total > 10
+                              ? '#d1fae5'
+                              : p.stock_total > 0
+                                ? '#fef3c7'
+                                : '#fee2e2',
+                          border: `3px solid ${
+                            p.stock_total > 10
+                              ? '#10b981'
+                              : p.stock_total > 0
+                                ? '#f59e0b'
+                                : '#ef4444'
+                          }`,
+                        }}
+                      >
+                        {p.stock_total || 0}
+                      </div>
+                    </td>
+
+                    {/* Acciones Admin */}
+                    {isAdmin && (
+                      <td
+                        className="py-4 px-4 text-center"
+                        style={{ verticalAlign: 'middle' }}
+                      >
+                        <div className="d-flex gap-2 justify-content-center">
+                          <button
+                            className="btn btn-outline-primary btn-sm px-3 py-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleUpdate(p);
+                            }}
+                            style={{
+                              fontSize: '0.85rem',
+                              fontWeight: '600',
+                              borderRadius: '8px',
+                              minWidth: '85px',
+                            }}
+                          >
+                            <i className="bi bi-pencil-square me-1"></i>
+                            Editar
+                          </button>
+
+                          <div onClick={(e) => e.stopPropagation()}>
+                            <ImprimirProd
+                              productos={[p]}
+                              label={
+                                <span style={{ fontSize: '0.85rem' }}>
+                                  <i className="bi bi-printer-fill me-1"></i>
+                                  Imprimir
+                                </span>
+                              }
+                              all={false}
+                            />
+                          </div>
+                        </div>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mensaje si no hay productos */}
+          {productosFiltrados.length === 0 && !loading && (
+            <div className="text-center py-5">
+              <i className="bi bi-inbox fs-1 text-muted mb-3 d-block"></i>
+              <p className="text-muted fs-5">No se encontraron productos</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* CSS personalizado */}
       <style jsx>{`
+        .producto-row:hover {
+          background-color: ${estilos.fondoClaro} !important;
+          transform: scale(1.005);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+          cursor: pointer;
+        }
+
         .form-control:focus {
           box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25) !important;
           border-color: #667eea !important;
+        }
+
+        .btn-outline-primary:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
         .btn-light:hover {
           transform: translateY(-2px);
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
           transition: all 0.3s ease;
-        }
-
-        .btn-light:active {
-          transform: translateY(0);
-        }
-      `}</style>
-
-      {/* 
-      <div className="container-tabla">
-        <table className="table table-hover">
-          <thead className="table-light">
-            <tr>
-              <th scope="col" className="d-md-table-cell">
-                Nombre
-              </th>
-              <th scope="col" className="d-md-table-cell">
-                Marca
-              </th>
-              <th scope="col" className="d-md-table-cell">
-                Modelo
-              </th>
-              <th scope="col" className="d-md-table-cell">
-                Talle
-              </th>
-              <th scope="col" className="d-none d-md-table-cell">
-                Color
-              </th>
-              <th scope="col" className="d-none d-md-table-cell">
-                Precio
-              </th>
-
-              <th scope="col" className="d-none d-md-table-cell">
-                Stock
-              </th>
-
-              {isAdmin && (
-                <>
-                  <th scope="col" className="d-none d-md-table-cell">
-                    Actualizar
-                  </th>
-                  
-                </>
-              )}
-              <th scope="col" className="d-none d-md-table-cell">
-                Imprimir
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {productosFiltrados.map((p, index) => (
-              <tr key={index} style={{ cursor: 'pointer' }}>
-                <td className="d-md-table-cell">
-                  <div className="d-flex  align-items-center">{p.nombre}</div>
-                  <div>
-                    <strong>
-                      <span style={{ fontSize: '0.8em' }}> {p.codigo} </span>
-                    </strong>
-                  </div>
-                </td>
-
-                <td className="d-md-table-cell">{p.marca}</td>
-                <td className="d-md-table-cell">{p.modelo}</td>
-                <td className="d-md-table-cell">{p.talle}</td>
-                <td className="d-none d-md-table-cell">{p.color}</td>
-                <td className="d-none d-md-table-cell">{p.precio_venta}</td>
-
-                <td className="d-none d-md-table-cell text-center">
-                  {p.stock_total || 0}
-                </td>
-
-                {isAdmin && (
-                  <>
-                    <td className="d-none d-md-table-cell">
-                      <button
-                        className="btn btn-sm btn-primary"
-                        style={{ width: '80px' }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleUpdate(p);
-                        }}
-                      >
-                        Actualizar
-                      </button>
-                    </td>
-
-                   
-                  </>
-                )}
-
-                <td className="d-none d-md-table-cell">
-                  <ImprimirProd
-                    productos={[p]}
-                    label={'Imprimir'}
-                    all={false}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div> */}
-
-      {/* <div className="container-tabla">
-        <div className="table-responsive">
-          <table className="table table-borderless">
-            <thead>
-              <tr className="border-bottom border-2 border-primary">
-                <th
-                  scope="col"
-                  className="text-uppercase text-muted small fw-bold"
-                >
-                  <i className="bi bi-box-seam me-2"></i>Producto
-                </th>
-                <th
-                  scope="col"
-                  className="text-uppercase text-muted small fw-bold d-none d-lg-table-cell"
-                >
-                  <i className="bi bi-tag me-2"></i>Detalles
-                </th>
-                <th
-                  scope="col"
-                  className="text-uppercase text-muted small fw-bold d-none d-md-table-cell text-end"
-                >
-                  <i className="bi bi-cash-coin me-2"></i>Precio
-                </th>
-                <th
-                  scope="col"
-                  className="text-uppercase text-muted small fw-bold d-none d-md-table-cell text-center"
-                >
-                  <i className="bi bi-boxes me-2"></i>Stock
-                </th>
-                {isAdmin && (
-                  <th
-                    scope="col"
-                    className="text-uppercase text-muted small fw-bold d-none d-md-table-cell text-center"
-                  >
-                    <i className="bi bi-gear me-2"></i>Acciones
-                  </th>
-                )}
-                <th scope="col" className="d-none d-md-table-cell"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {productosFiltrados.map((p, index) => (
-                <tr
-                  key={index}
-                  className="border-bottom"
-                  style={{
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                  }}
-                >
-                  <td className="py-3">
-                    <div className="d-flex flex-column">
-                      <span
-                        className="fw-bold text-dark mb-1"
-                        style={{ fontSize: '1.05rem' }}
-                      >
-                        {p.nombre}
-                      </span>
-                      <div className="d-flex gap-2 flex-wrap align-items-center">
-                        <span className="badge rounded-pill bg-dark text-white px-3">
-                          {p.codigo}
-                        </span>
-                        <span className="d-md-none text-muted small">
-                          ${p.precio_venta} • Stock: {p.stock_total || 0}
-                        </span>
-                      </div>
-                    </div>
-                  </td>
-
-               
-                  <td className="py-3 d-none d-lg-table-cell">
-                    <div className="d-flex flex-wrap gap-2">
-                      <span className="badge bg-primary bg-opacity-10 text-primary border border-primary px-3 py-2">
-                        <i className="bi bi-award me-1"></i>
-                        {p.marca}
-                      </span>
-                      <span className="badge bg-secondary bg-opacity-10 text-secondary border border-secondary px-3 py-2">
-                        <i className="bi bi-grid me-1"></i>
-                        {p.modelo}
-                      </span>
-                      <span className="badge bg-info bg-opacity-10 text-info border border-info px-3 py-2">
-                        <i className="bi bi-rulers me-1"></i>
-                        {p.talle}
-                      </span>
-                      <span className="badge bg-warning bg-opacity-10 text-warning border border-warning px-3 py-2">
-                        <i className="bi bi-palette me-1"></i>
-                        {p.color}
-                      </span>
-                    </div>
-                  </td>
-
-         
-                  <td className="py-3 d-none d-md-table-cell text-end">
-                    <div className="fs-5 fw-bold text-success">
-                      ${parseFloat(p.precio_venta).toFixed(2)}
-                    </div>
-                  </td>
-
-       
-                  <td className="py-3 d-none d-md-table-cell text-center">
-                    <div
-                      className={`d-inline-flex align-items-center justify-content-center rounded-circle ${
-                        p.stock_total > 10
-                          ? 'bg-success bg-opacity-10 text-success border border-success'
-                          : p.stock_total > 0
-                          ? 'bg-warning bg-opacity-10 text-warning border border-warning'
-                          : 'bg-danger bg-opacity-10 text-danger border border-danger'
-                      }`}
-                      style={{
-                        width: '50px',
-                        height: '50px',
-                        fontSize: '1.1rem',
-                        fontWeight: 'bold',
-                      }}
-                    >
-                      {p.stock_total || 0}
-                    </div>
-                  </td>
-
-              
-                  {isAdmin && (
-                    <td className="py-3 d-none d-md-table-cell text-center">
-                      <div className="d-flex gap-2 justify-content-center">
-                        <button
-                          className="btn btn-outline-primary btn-sm rounded-pill px-3"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleUpdate(p);
-                          }}
-                          style={{ minWidth: '90px' }}
-                        >
-                          <i className="bi bi-pencil me-1"></i>
-                          Editar
-                        </button>
-                      </div>
-                    </td>
-                  )}
-
-        
-                  <td className="py-3 d-none d-md-table-cell text-end">
-                    <ImprimirProd
-                      productos={[p]}
-                      label={
-                        <span>
-                          <i className="bi bi-printer me-1"></i>
-                          Imprimir
-                        </span>
-                      }
-                      all={false}
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div> */}
-
-      <div className="container-tabla">
-        <div className="table-responsive">
-          <table className="table table-borderless">
-            <thead>
-              <tr className="border-bottom border-2 border-primary">
-                <th
-                  scope="col"
-                  className="text-uppercase text-muted small fw-bold"
-                >
-                  <i className="bi bi-box-seam me-2"></i>Producto
-                </th>
-                <th
-                  scope="col"
-                  className="text-uppercase text-muted small fw-bold d-none d-lg-table-cell"
-                >
-                  <i className="bi bi-tag me-2"></i>Detalles
-                </th>
-                <th
-                  scope="col"
-                  className="text-uppercase text-muted small fw-bold d-none d-md-table-cell text-end"
-                >
-                  <i className="bi bi-cash-coin me-2"></i>Precio
-                </th>
-                <th
-                  scope="col"
-                  className="text-uppercase text-muted small fw-bold d-none d-md-table-cell text-center"
-                >
-                  <i className="bi bi-boxes me-2"></i>Stock
-                </th>
-                {isAdmin && (
-                  <th
-                    scope="col"
-                    className="text-uppercase text-muted small fw-bold d-none d-md-table-cell text-center"
-                  >
-                    <i className="bi bi-gear me-2"></i>Acciones
-                  </th>
-                )}
-                <th scope="col" className="d-none d-md-table-cell"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {productosFiltrados.map((p, index) => (
-                <tr
-                  key={index}
-                  className="border-bottom"
-                  style={{
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                  }}
-                >
-                  {/* Columna Principal: Nombre + Código */}
-                  <td className="py-3">
-                    <div className="d-flex flex-column">
-                      <span
-                        className="fw-bold text-dark mb-1"
-                        style={{ fontSize: '1.05rem' }}
-                      >
-                        {p.nombre}
-                      </span>
-                      <div className="d-flex gap-2 flex-wrap align-items-center">
-                        <span
-                          className="badge rounded-pill bg-dark text-white px-3 py-2"
-                          style={{ fontSize: '0.85rem' }}
-                        >
-                          {p.codigo}
-                        </span>
-                        <span className="d-md-none text-muted small">
-                          ${p.precio_venta} • Stock: {p.stock_total || 0}
-                        </span>
-                      </div>
-                    </div>
-                  </td>
-
-                  {/* Detalles: Marca, Modelo, Talle, Color - MEJORADOS */}
-                  <td className="py-3 d-none d-lg-table-cell">
-                    <div className="d-flex flex-column gap-2">
-                      {/* Marca */}
-                      <div className="d-flex align-items-center">
-                        <span
-                          className="badge bg-primary bg-opacity-10 text-primary border border-primary px-3 py-2"
-                          style={{
-                            fontSize: '0.95rem',
-                            fontWeight: '600',
-                            minWidth: '120px',
-                          }}
-                        >
-                          <i className="bi bi-award me-2"></i>
-                          {p.marca}
-                        </span>
-                      </div>
-
-                      {/* Segunda fila: Modelo, Talle, Color */}
-                      <div className="d-flex gap-2 flex-wrap">
-                        <span
-                          className="badge bg-secondary bg-opacity-10 text-secondary border border-secondary px-3 py-2"
-                          style={{ fontSize: '0.9rem', fontWeight: '600' }}
-                        >
-                          <i className="bi bi-grid me-1"></i>
-                          {p.modelo}
-                        </span>
-                        <span
-                          className="badge bg-info bg-opacity-10 text-info border border-info px-3 py-2"
-                          style={{ fontSize: '0.9rem', fontWeight: '600' }}
-                        >
-                          <i className="bi bi-rulers me-1"></i>
-                          {p.talle}
-                        </span>
-                        <span
-                          className="badge bg-warning bg-opacity-10 text-warning border border-warning px-3 py-2"
-                          style={{ fontSize: '0.9rem', fontWeight: '600' }}
-                        >
-                          <i className="bi bi-palette me-1"></i>
-                          {p.color}
-                        </span>
-                      </div>
-                    </div>
-                  </td>
-
-                  {/* Precio */}
-                  <td className="py-3 d-none d-md-table-cell text-end">
-                    <div className="fs-5 fw-bold text-success">
-                      ${parseFloat(p.precio_venta).toFixed(2)}
-                    </div>
-                  </td>
-
-                  {/* Stock */}
-                  <td className="py-3 d-none d-md-table-cell text-center">
-                    <div
-                      className={`d-inline-flex align-items-center justify-content-center rounded-circle ${
-                        p.stock_total > 10
-                          ? 'bg-success bg-opacity-10 text-success border border-success'
-                          : p.stock_total > 0
-                          ? 'bg-warning bg-opacity-10 text-warning border border-warning'
-                          : 'bg-danger bg-opacity-10 text-danger border border-danger'
-                      }`}
-                      style={{
-                        width: '50px',
-                        height: '50px',
-                        fontSize: '1.1rem',
-                        fontWeight: 'bold',
-                      }}
-                    >
-                      {p.stock_total || 0}
-                    </div>
-                  </td>
-
-                  {/* Acciones Admin */}
-                  {isAdmin && (
-                    <td className="py-3 d-none d-md-table-cell text-center">
-                      <div className="d-flex gap-2 justify-content-center">
-                        <button
-                          className="btn btn-outline-primary btn-sm rounded-pill px-3"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleUpdate(p);
-                          }}
-                          style={{ minWidth: '90px' }}
-                        >
-                          <i className="bi bi-pencil me-1"></i>
-                          Editar
-                        </button>
-                      </div>
-                    </td>
-                  )}
-
-                  {/* Imprimir */}
-                  <td className="py-3 d-none d-md-table-cell text-end">
-                    <ImprimirProd
-                      productos={[p]}
-                      label={
-                        <span>
-                          <i className="bi bi-printer me-1"></i>
-                          Imprimir
-                        </span>
-                      }
-                      all={false}
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* CSS adicional */}
-      <style jsx>{`
-        .table tbody tr:hover {
-          background-color: #f8f9fa;
-          transform: translateX(5px);
-          box-shadow: -3px 0 0 0 #0d6efd;
-        }
-
-        .badge {
-          font-weight: 600;
-          letter-spacing: 0.3px;
-          transition: all 0.2s ease;
-        }
-
-        .badge:hover {
-          transform: scale(1.05);
         }
       `}</style>
 
@@ -938,14 +826,6 @@ const Productos = () => {
       )}
 
       <Spinner loading={loading} msg={msg} />
-
-      {/*    {modalIntercambio && (
-        <ModalTransferencia
-          modalIntercambio={modalIntercambio}
-          producto={productoStock}
-          onClose={() => setModalIntercambio(false)}
-        />
-      )} */}
 
       <ModalDetalles
         showModalDetalles={showModalDetalles}

@@ -82,6 +82,9 @@ const ModalCompras = ({
     }
   };
 
+  // 👉 Si no hay compras, no renderiza nada
+  if (!compras) return null;
+
   return (
     <>
       <Modal
@@ -119,7 +122,6 @@ const ModalCompras = ({
                     <tr>
                       <th>Fecha</th>
                       <th className="text-center">Numero</th>
-
                       <th className="text-center">Proveedor</th>
                       <th className="text-center">Cant.</th>
                       <th className="text-center">Costo</th>

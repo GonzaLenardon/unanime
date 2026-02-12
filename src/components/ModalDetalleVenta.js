@@ -4,6 +4,8 @@ import { Modal, Button } from 'react-bootstrap';
 const ModalDetalleVenta = ({ showModalDetalles, handleClose, venta }) => {
   if (!venta) return null; // Evita renderizar si no hay datos
 
+  console.log('ventas', venta);
+
   return (
     <Modal
       show={showModalDetalles}
@@ -33,7 +35,7 @@ const ModalDetalleVenta = ({ showModalDetalles, handleClose, venta }) => {
             <strong>Nro. Venta:</strong> {venta.id_venta}
           </p>
           <p>
-            <strong>Total Venta:</strong> $ {venta.total.toFixed(2)}
+            <strong>Total Venta:</strong> $ {venta?.total.toFixed(2)}
           </p>
 
           <table className="table table-bordered ">

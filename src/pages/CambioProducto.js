@@ -1,13 +1,12 @@
-import React, { use, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { detallesVentas } from '../api/ventas';
-import { allTipoVentas } from '../api/tipoVentas';
 import ModalSeleccionProducto from '../components/ModalSeleccionarProducto';
 import { useGestion } from '../context/UserContext';
 import { toast } from 'react-toastify'; // Opcional si usás notificaciones
 import { cambio } from '../api/cambios';
 import { ToastContainer, Slide } from 'react-toastify';
-import { useAuth } from '../context/AuthContext';
-import BuscarProducto from './BuscarProducto';
+
+import { allTipoVentas } from '../api/tipoVentas';
 
 const CambioProducto = () => {
   const [nroVenta, setNroVenta] = useState('');
@@ -23,8 +22,6 @@ const CambioProducto = () => {
 
   const handleNro = (e) => setNroVenta(e.target.value);
 
-  const { user } = useAuth();
-
   useEffect(() => {
     tVentas();
   }, []);
@@ -37,6 +34,7 @@ const CambioProducto = () => {
       setRecibidos([]);
 
       const resp = await detallesVentas(nroVenta);
+      console.log('Que recibo de detalles ... ', resp.ventaOriginal.id_venta);
       setVentaOriginal(resp);
     } catch (error) {
       console.error('Error al obtener detalles de la venta:', error);
@@ -64,7 +62,7 @@ const CambioProducto = () => {
       id_producto: item.id_producto,
       nombre: item.nombreProducto,
       cantidad: item.cantidad,
-      precio_unitario: item.total,
+      precio_unitario: item.precio_unitario,
       id_detalle_compra: item.id_detalle_compra,
     };
     setDevueltos((prev) => [...prev, nuevo]);
@@ -81,12 +79,13 @@ const CambioProducto = () => {
 
   const tVentas = async () => {
     const resp = await allTipoVentas();
-    setTiposVentas(resp.data);
+    console.log('tipoVentas', resp);
+    setTiposVentas(resp);
   };
 
   const handleRemoveDevuelto = (index) => {
     setDevueltos(devueltos.filter((_, i) => i !== index));
-    console.log('llllllllllll', devueltos.length.toString());
+    console.log('devueltos', devueltos.length.toString());
     console.log(devueltos);
   };
 
@@ -106,11 +105,9 @@ const CambioProducto = () => {
     }
 
     const cambioPayload = {
-      id_venta_original: ventaOriginal.id_venta,
+      id_venta_original: ventaOriginal.ventaOriginal.id_venta,
       observaciones,
-      id_usuario: user.id,
 
-      sucursal_id: ventaOriginal.id_sucursal || 1, // Ajustar según dónde tengas el dato
       tventaSeleccionada: parseInt(tventaSeleccionada),
       diferencia: diferencia > 0 ? diferencia : 0,
 
@@ -205,18 +202,145 @@ const CambioProducto = () => {
         >
           {/* Detalle de la venta original */}
 
-          {ventaOriginal?.detalles?.length > 0 && (
+          <div>
+            <h5>Detalle de la Venta Original</h5>
+
+            <table className="table table-bordered ">
+              <thead className="table-secondary">
+                <tr>
+                  <th>#</th>
+                  <th>Producto</th>
+                  <th>Cantidad</th>
+                  <th>Total Detalle</th>
+                </tr>
+              </thead>
+              <tbody>
+                {ventaOriginal?.ventaOriginal?.productos.map((detalle, idx) => (
+                  <tr key={idx}>
+                    <td>{idx + 1}</td>
+                    <td>{detalle.nombre}</td>
+
+                    <td>{detalle.cantidad}</td>
+                    <td>$ {detalle.precio_unitario.toFixed(2)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            <h5>Cambios</h5>
+
+            <div className="mb-4">
+              <h5>Historial de Cambios</h5>
+
+              {ventaOriginal?.cambios && ventaOriginal.cambios.length > 0 ? (
+                ventaOriginal.cambios.map((cambio) => (
+                  <div key={cambio.id_cambio} className="card mb-3">
+                    <div className="card-header bg-info text-white">
+                      <strong>Cambio #{cambio.numero}</strong> -{' '}
+                      {new Date(cambio.fecha).toLocaleString('es-AR')}
+                      {cambio.observaciones && (
+                        <span className="ms-3">
+                          <small>({cambio.observaciones})</small>
+                        </span>
+                      )}
+                    </div>
+                    <div className="card-body">
+                      <div className="row">
+                        {/* PRODUCTOS DEVUELTOS */}
+                        <div className="col-md-6">
+                          <h6 className="text-danger">
+                            <i className="bi bi-arrow-left-circle"></i> Devolvió
+                          </h6>
+                          <table className="table table-sm table-bordered">
+                            <thead className="table-light">
+                              <tr>
+                                <th>Producto</th>
+                                <th>Cant.</th>
+                                <th>Precio</th>
+                                <th>Lote</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {cambio.devueltos.map((prod) => (
+                                <tr key={prod.id_detalle_cambio}>
+                                  <td>{prod.nombre}</td>
+                                  <td>{prod.cantidad}</td>
+                                  <td>
+                                    ${' '}
+                                    {prod.precio_unitario.toLocaleString(
+                                      'es-AR'
+                                    )}
+                                  </td>
+                                  <td>
+                                    <small className="text-muted">
+                                      #{prod.id_detalle_compra}
+                                    </small>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+
+                        {/* PRODUCTOS RECIBIDOS */}
+                        <div className="col-md-6">
+                          <h6 className="text-success">
+                            <i className="bi bi-arrow-right-circle"></i> Recibió
+                          </h6>
+                          <table className="table table-sm table-bordered">
+                            <thead className="table-light">
+                              <tr>
+                                <th>Producto</th>
+                                <th>Cant.</th>
+                                <th>Precio</th>
+                                <th>Lote</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {cambio.recibidos.map((prod) => (
+                                <tr key={prod.id_detalle_cambio}>
+                                  <td>{prod.nombre}</td>
+                                  <td>{prod.cantidad}</td>
+                                  <td>
+                                    ${' '}
+                                    {prod.precio_unitario.toLocaleString(
+                                      'es-AR'
+                                    )}
+                                  </td>
+                                  <td>
+                                    <small className="text-muted">
+                                      #{prod.id_detalle_compra}
+                                    </small>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="alert alert-info">
+                  No hay cambios registrados para esta venta
+                </div>
+              )}
+            </div>
+          </div>
+
+          {ventaOriginal?.vigentes?.length > 0 && (
             <div className="mb-4">
               <h5>Detalle de la Venta</h5>
               <ul className="list-group">
-                {ventaOriginal.detalles.map((item) => (
+                {ventaOriginal.vigentes.map((item) => (
                   <li
-                    key={item.id_detalleventa}
+                    key={item.id_venta_original}
                     className="list-group-item d-flex justify-content-between align-items-center"
                   >
                     <span>
-                      {item.nombreProducto} x {item.cantidad} =
-                      <strong> $ {item.total}</strong>
+                      {item.nombre} x {item.cantidad} =
+                      <strong> $ {item.precio_unitario}</strong>
                     </span>
                     <div className="d-flex align-items-center gap-2">
                       <input
@@ -243,6 +367,8 @@ const CambioProducto = () => {
                           agregarProductoDevuelto({
                             ...item,
                             cantidad: item.cantidadDevolver,
+                            precio_unitario:
+                              item.precio_unitario / item.cantidad,
                           });
                         }}
                       >
@@ -326,13 +452,13 @@ const CambioProducto = () => {
 
           <select
             className="form-select w-25"
-            value={tiposVentas?.id_tipo || ''}
+            value={tventaSeleccionada}
             onChange={(e) => setTventaSeleccionada(e.target.value)}
           >
             <option value="" disables>
               Tipo Venta
             </option>
-            {tiposVentas.map((tv) => (
+            {tiposVentas?.map((tv) => (
               <option key={tv.id_tipo} value={tv.id_tipo}>
                 {tv.tipoVenta}{' '}
               </option>

@@ -1,46 +1,49 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useGestion } from '../context/UserContext';
 import { getSucursal } from '../api/sucursales';
-import { useAuth } from '../context/AuthContext';
+
+import { allproductos, productosConStock } from '../api/productos';
 
 const ModalSeleccionProducto = ({ onClose, onConfirm }) => {
-  const [prod, setProd] = useState([]);
+  const [productos, setProductos] = useState([]);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [cantidad, setCantidad] = useState(1);
   const [precio, setPrecio] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
-  const { fetchProductos, productos } = useGestion();
-  const [idSucursal, setIdSucursal] = useState();
-  const { user } = useAuth();
+
+  const id_usuario = localStorage.getItem('Usuario_id');
+  const id_sucursal = localStorage.getItem('sucursal_id');
+
   const inputRef = useRef(null);
 
   useEffect(() => {
     getProductos();
-    fetchSucursal();
+    /*  fetchSucursal() */
   }, []);
 
   useEffect(() => {
-    setProd(productos);
+    setProductos(productos);
   }, [productos]);
 
   const getProductos = async () => {
     try {
-      await fetchProductos();
-      setProd(productos);
+      const resp = await productosConStock();
+      setProductos(resp);
+      console.log('productos', resp);
     } catch (error) {
       console.error('Error al obtener productos:', error);
     }
   };
 
-  const fetchSucursal = async () => {
+  /*   const fetchSucursal = async () => {
     try {
-      const res = await getSucursal(user.id);
+      const res = await getSucursal(id_usuario);
       setIdSucursal(res.sucursal);
       console.log('SUCURSAL', res.sucursal);
     } catch (error) {
       console.log('error', error);
     }
-  };
+  }; */
 
   const handleConfirmar = () => {
     if (!productoSeleccionado || cantidad <= 0 || precio <= 0) return;
@@ -57,7 +60,7 @@ const ModalSeleccionProducto = ({ onClose, onConfirm }) => {
   };
 
   // Filtrar stock por sucursal
-  const stockProductos = productos
+  /*  const stockProductos = productos
     .filter((producto) =>
       producto.stock_por_sucursal?.some(
         (s) => s.id_sucursal === idSucursal && s.stock_total > 0
@@ -68,10 +71,10 @@ const ModalSeleccionProducto = ({ onClose, onConfirm }) => {
       stock_por_sucursal: producto.stock_por_sucursal.filter(
         (s) => s.id_sucursal === idSucursal && s.stock_total > 0
       ),
-    }));
+    })); */
 
   // Filtrar productos por término de búsqueda
-  const productosFiltrados = stockProductos.filter((p) => {
+  const productosFiltrados = productos.filter((p) => {
     const textoCompleto = `${p.nombre} ${p.marca} ${p.modelo} ${p.codigo}`
       .toLowerCase()
       .replace(/\s+/g, '');
@@ -126,7 +129,7 @@ const ModalSeleccionProducto = ({ onClose, onConfirm }) => {
                 </button>
               </div>
               <div className="text-muted small mt-1 fw-bold">
-                {`Total de Productos : ${productosFiltrados.length} / ${stockProductos.length} `}
+                {`Total de Productos : ${productosFiltrados.length} / ${productos.length} `}
               </div>
 
               {/* Resultados dinámicos */}

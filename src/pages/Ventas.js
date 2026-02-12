@@ -26,13 +26,14 @@ const Ventas = () => {
           gradiente: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           colorPrincipal: '#667eea',
           fondoClaro: 'rgba(102, 126, 234, 0.08)',
-          iconoVentas: 'bi-cart-check-fill',
+          iconoProductos: 'bi-box-seam',
+          gradienteSuave: 'rgba(102, 126, 234, 0.45)',
         }
       : {
           gradiente: 'linear-gradient(135deg, #f857a6 0%, #ff5858 100%)',
           colorPrincipal: '#f857a6',
           fondoClaro: 'rgba(248, 87, 166, 0.08)',
-          iconoVentas: 'bi-bag-heart-fill',
+          iconoProductos: 'bi-bag-heart',
         };
 
   useEffect(() => {
@@ -101,6 +102,10 @@ const Ventas = () => {
     setItemsVenta(actualizados);
   };
 
+  useEffect(() => {
+    console.log('items venta', itemsVenta);
+  }, [itemsVenta]);
+
   const eliminarProducto = (id_producto) => {
     setItemsVenta(
       itemsVenta.filter((item) => item.id_producto !== id_producto)
@@ -132,6 +137,7 @@ const Ventas = () => {
     try {
       await addVenta(venta);
       setLoading(false);
+      console.log('Ventra', venta);
       navigate('/home');
     } catch (error) {
       console.log('error', error);
@@ -164,7 +170,7 @@ const Ventas = () => {
               background: estilos.gradiente,
             }}
           >
-            <i className={`bi ${estilos.iconoVentas} text-white fs-3`}></i>
+            <i className={`${estilos.iconoProductos} text-white fs-3`}></i>
           </div>
           <div>
             <h2
@@ -173,7 +179,7 @@ const Ventas = () => {
             >
               Nueva Venta
             </h2>
-            <p className="text-muted mb-0">
+            <p className="mb-0" style={{ color: estilos.colorPrincipal }}>
               Busca y agrega productos a la venta
             </p>
           </div>
@@ -182,12 +188,12 @@ const Ventas = () => {
         {/* Buscador */}
         <div
           className="card border-0 shadow-sm mb-3"
-          style={{ borderRadius: '15px' }}
+          style={{
+            background: estilos.gradiente,
+            borderRadius: '15px',
+          }}
         >
-          <div
-            className="card-body p-4"
-            style={{ background: estilos.gradiente }}
-          >
+          <div className="card-body p-4">
             <div className="d-flex flex-column flex-lg-row align-items-center gap-3">
               {/* Icono y Label */}
               <div className="d-flex align-items-center gap-3 text-white">
@@ -482,16 +488,21 @@ const Ventas = () => {
 
             {/* Footer con totales */}
             <div
-              className="card-footer border-0 p-4"
+              className="card-footer border-0 py-4 px-0"
               style={{
                 backgroundColor: '#ffffff',
-                borderRadius: '0 0 15px 15px',
               }}
             >
-              <div className="row g-3 align-items-center">
+              <div
+                className="row g-3 align-items-center"
+                style={{
+                  background: estilos.gradienteSuave,
+                  borderRadius: '15px',
+                }}
+              >
                 {/* Selector de tipo */}
                 <div className="col-12 col-lg-4">
-                  <label className="form-label fw-semibold small text-muted">
+                  <label className="form-label fw-bold small text-muted">
                     TIPO DE VENTA
                   </label>
                   <select
