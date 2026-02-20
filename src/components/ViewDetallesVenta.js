@@ -35,16 +35,24 @@ export const ViewDetallesVenta = ({
           {ventaSeleccionada && (
             <>
               <div className="d-flex">
-                <p className="w-50">
-                  <strong>Fecha de Venta:</strong>{' '}
-                  {new Date(ventaSeleccionada.fecha).toLocaleDateString(
-                    'es-AR',
-                    {
-                      timeZone: 'UTC',
-                    }
-                  )}{' '}
-                  - {formatedFecha(ventaSeleccionada.fecha)} Hs
-                </p>
+                <div className="w-50">
+                  <p className="w-50">
+                    <strong>Fecha de Venta:</strong>{' '}
+                    {new Date(ventaSeleccionada.fecha).toLocaleDateString(
+                      'es-AR',
+                      {
+                        timeZone: 'UTC',
+                      },
+                    )}{' '}
+                    - {formatedFecha(ventaSeleccionada.fecha)} Hs
+                  </p>
+
+                  <p className="w-50">
+                    <strong>Tipo Venta:</strong>{' '}
+                    {ventaSeleccionada.tipoVenta.tipoVenta}
+                  </p>
+                </div>
+
                 <p className="text-end pe-3 fw-bold  w-50">
                   Nro. {ventaSeleccionada.id_venta}
                 </p>
@@ -106,7 +114,7 @@ export const ViewDetallesVenta = ({
                                 <td>{detalle.cantidad}</td>
                                 <td>${detalle.precio_unitario}</td>
                               </tr>
-                            )
+                            ),
                           )}
                         </tbody>
                       </table>

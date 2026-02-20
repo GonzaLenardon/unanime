@@ -116,43 +116,17 @@ const Home = () => {
     }
   };
 
-  /*   const nombresTipoArray = [
-    { id: 1, color: '#b92b2bff' }, // Rojo coral suave
-    { id: 2, color: '#4ECDC4' }, // Turquesa claro
-    { id: 3, color: '#FFD93D' }, // Amarillo vibrante
-    { id: 4, color: '#1A535C' }, // Azul petróleo oscuro
-    { id: 5, color: '#FF9F1C' }, // Naranja cálido
-    { id: 6, color: '#2E86AB' }, // Azul cielo profundo
-    { id: 7, color: '#6A4C93' }, // Púrpura suave
-    { id: 8, color: '#F25F5C' }, // Salmón
-    { id: 9, color: '#247BA0' }, // Azul medio
-    { id: 10, color: '#70C1B3' }, // Verde agua
-  ]; */
-
   const nombresTipoArray = [
-    { id: 1, color: '#667EEA' }, // Púrpura azulado
-    { id: 2, color: '#F857A6' }, // Rosa vibrante
-    { id: 3, color: '#FFD93D' }, // Dorado brillante
-    { id: 4, color: '#6BCF7F' }, // Verde esmeralda
-    { id: 5, color: '#FF6B9D' }, // Rosa chicle
-    { id: 6, color: '#4FACFE' }, // Azul cielo
-    { id: 7, color: '#C471ED' }, // Púrpura lavanda
-    { id: 8, color: '#F093FB' }, // Rosa claro
-    { id: 9, color: '#43E97B' }, // Verde lima
-    { id: 10, color: '#FA709A' }, // Rosa coral
-  ];
-
-  const nombresTipoArrayParafuturocambios = [
-    { id: 1, color: '#FF3CAC' }, // Rosa vibrante
-    { id: 2, color: '#00D9FF' }, // Cyan brillante
-    { id: 3, color: '#FFD700' }, // Oro puro
-    { id: 4, color: '#7B2FF7' }, // Púrpura intenso
-    { id: 5, color: '#FF4E50' }, // Rojo coral
-    { id: 6, color: '#00E5A0' }, // Verde jade
-    { id: 7, color: '#FF8C42' }, // Naranja mandarina
-    { id: 8, color: '#5B9AFF' }, // Azul periwinkle
-    { id: 9, color: '#F765A3' }, // Rosa frambuesa
-    { id: 10, color: '#16BFD6' }, // Turquesa tropical
+    { id: 1, color: 'rgba(231, 76, 60, 0.75)' }, // rojo coral
+    { id: 2, color: 'rgba(52, 152, 219, 0.75)' }, // azul brillante
+    { id: 3, color: 'rgba(46, 204, 113, 0.75)' }, // verde esmeralda
+    { id: 4, color: 'rgba(155, 89, 182, 0.75)' }, // violeta
+    { id: 5, color: 'rgba(241, 196, 15, 0.75)' }, // amarillo mostaza
+    { id: 6, color: 'rgba(26, 188, 156, 0.75)' }, // turquesa
+    { id: 7, color: 'rgba(230, 126, 34, 0.75)' }, // naranja fuerte
+    { id: 8, color: 'rgba(52, 73, 94, 0.75)' }, // azul oscuro
+    { id: 9, color: 'rgba(233, 30, 99, 0.75)' }, // rosa intenso
+    { id: 10, color: 'rgba(142, 68, 173, 0.75)' }, // púrpura oscuro
   ];
 
   const totalVentas = ventas.reduce(
@@ -161,7 +135,7 @@ const Home = () => {
       acc.transacciones += Number(el.transacciones);
       return acc;
     },
-    { suma_total: 0, transacciones: 0 }
+    { suma_total: 0, transacciones: 0 },
   );
 
   const formatedFecha = (fechaString) => {
@@ -451,7 +425,7 @@ const Home = () => {
                     {/* Filas */}
                     {ventas.map((v) => {
                       const tipoInfo = nombresTipoArray.find(
-                        (t) => t.id === v.id_tipo_venta
+                        (t) => t.id === v.id_tipo_venta,
                       );
                       const bgColor = tipoInfo?.color ?? '#FFFFFF';
 
@@ -475,7 +449,6 @@ const Home = () => {
                         >
                           <div className="col-5 fw-semibold">
                             {v.tipo_venta}
-                            {v.id_tipo_venta}
                           </div>
                           <div className="col-3 text-center">
                             <span className="badge bg-dark">
@@ -579,8 +552,8 @@ const Home = () => {
                                   p.stock_total < 5
                                     ? '#dc3545'
                                     : p.stock_total < 10
-                                    ? '#ffc107'
-                                    : '#198754',
+                                      ? '#ffc107'
+                                      : '#198754',
                               }}
                             ></div>
                             <span className="fw-semibold">{p.nombre}</span>
@@ -594,14 +567,14 @@ const Home = () => {
                                 p.stock_total < 5
                                   ? '#dc354515'
                                   : p.stock_total < 10
-                                  ? '#ffc10715'
-                                  : '#19875415',
+                                    ? '#ffc10715'
+                                    : '#19875415',
                               color:
                                 p.stock_total < 5
                                   ? '#dc3545'
                                   : p.stock_total < 10
-                                  ? '#ffc107'
-                                  : '#198754',
+                                    ? '#ffc107'
+                                    : '#198754',
                               fontSize: '0.9rem',
                               padding: '6px 12px',
                             }}

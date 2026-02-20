@@ -44,6 +44,8 @@ const VentasResumen = () => {
         desde: fecha.desde,
         hasta: fecha.hasta,
       });
+      console.log('Data', res.data);
+
       setData(res.data);
     } catch (error) {
       console.log(error);
@@ -58,6 +60,7 @@ const VentasResumen = () => {
         hasta: fecha.hasta,
       });
       setDetalleVtas(res.data);
+      console.log('first', res.data);
     } catch (error) {
       console.log(error);
       toast.error('Error al cargar ventas');
@@ -70,45 +73,29 @@ const VentasResumen = () => {
   };
 
   const nombresTipoArray = [
-    {
-      id: 3,
-      nombre: 'Efectivo',
-      color: 'rgba(225,0,32,0.7)',
-      icon: 'bi-cash-coin',
-    },
-    {
-      id: 4,
-      nombre: 'Tarjeta',
-      color: 'rgba(7,188,12,0.7)',
-      icon: 'bi-credit-card-2-front-fill',
-    },
-    {
-      id: 5,
-      nombre: 'Débito',
-      color: 'rgba(189,230,18,0.7)',
-      icon: 'bi-credit-card-fill',
-    },
-    {
-      id: 6,
-      nombre: 'MPago',
-      color: 'rgba(0,174,239,0.7)',
-      icon: 'bi-phone-fill',
-    },
-    {
-      id: 7,
-      nombre: 'Cta. Cte.',
-      color: 'rgba(239, 0, 187, 0.7)',
-      icon: 'bi-journal-text',
-    },
+    { id: 1, color: 'rgba(231, 76, 60, 0.75)' }, // rojo coral
+    { id: 2, color: 'rgba(52, 152, 219, 0.75)' }, // azul brillante
+    { id: 3, color: 'rgba(46, 204, 113, 0.75)' }, // verde esmeralda
+    { id: 4, color: 'rgba(155, 89, 182, 0.75)' }, // violeta
+    { id: 5, color: 'rgba(241, 196, 15, 0.75)' }, // amarillo mostaza
+    { id: 6, color: 'rgba(26, 188, 156, 0.75)' }, // turquesa
+    { id: 7, color: 'rgba(230, 126, 34, 0.75)' }, // naranja fuerte
+    { id: 8, color: 'rgba(52, 73, 94, 0.75)' }, // azul oscuro
+    { id: 9, color: 'rgba(233, 30, 99, 0.75)' }, // rosa intenso
+    { id: 10, color: 'rgba(142, 68, 173, 0.75)' }, // púrpura oscuro
   ];
 
-  const resultadoConNombres = data.map(({ id_tipo_venta, suma_total }) => {
-    const encontrado = nombresTipoArray.find((x) => x.id === id_tipo_venta);
+  const resultadoConNombres = data.map((item) => {
+    const encontrado = nombresTipoArray.find(
+      (x) => x.id === item.id_tipo_venta,
+    );
+
     return {
-      id: encontrado.id,
-      tipo: encontrado?.nombre ?? 'Desconocido',
-      color: encontrado?.color ?? '#CCCCCC',
-      suma_total,
+      id: item.id_tipo_venta,
+      tipo: item.tipo_venta,
+      color: encontrado?.color ?? 'rgba(180,180,180,0.7)',
+      suma_total: item.suma_total,
+      transacciones: item.transacciones,
     };
   });
 
@@ -118,7 +105,7 @@ const VentasResumen = () => {
       acc.transacciones += Number(el.transacciones);
       return acc;
     },
-    { suma_total: 0, transacciones: 0 }
+    { suma_total: 0, transacciones: 0 },
   );
 
   const handleShow = (venta) => {
@@ -250,7 +237,7 @@ const VentasResumen = () => {
             <small className="text-success fw-semibold">
               <i className="bi bi-calendar-range me-2"></i>
               Período: {new Date(fecha.desde).toLocaleDateString(
-                'es-AR'
+                'es-AR',
               )} - {new Date(fecha.hasta).toLocaleDateString('es-AR')}
             </small>
           </div>
@@ -304,12 +291,12 @@ const VentasResumen = () => {
                     {/* Filas */}
                     {data.map((v) => {
                       const tipoInfo = nombresTipoArray.find(
-                        (t) => t.id === v.id_tipo_venta
+                        (t) => t.id === v.id_tipo_venta,
                       );
                       const colorBase =
                         tipoInfo?.color || 'rgba(149,213,178,0.8)';
                       const colorSoft = tipoInfo?.color
-                        ? tipoInfo.color.replace(/0\.7/, '0.4')
+                        ? tipoInfo.color.replace(/0\.75/, '0.4')
                         : 'rgba(149,213,178,0.4)';
 
                       return (
@@ -332,8 +319,8 @@ const VentasResumen = () => {
                           }}
                         >
                           <div className="col-5 fw-semibold d-flex align-items-center gap-2">
-                            <i className={`bi ${tipoInfo?.icon}`}></i>
-                            {tipoInfo?.nombre || 'Desconocido'}
+                            <i className="bi bi-credit-card"></i>
+                            {v.tipo_venta}
                           </div>
                           <div className="col-3 text-center">
                             <span className="badge bg-dark">
@@ -446,9 +433,6 @@ const VentasResumen = () => {
                   </thead>
                   <tbody>
                     {detalleVtas.map((venta, index) => {
-                      const tipoInfo = nombresTipoArray.find(
-                        (t) => t.id === venta.id_tipo_venta
-                      );
                       return (
                         <tr
                           key={index}
@@ -474,12 +458,8 @@ const VentasResumen = () => {
                           </td>
                           <td className="py-3">
                             <div className="d-flex align-items-center gap-2">
-                              <i
-                                className={`bi ${
-                                  tipoInfo?.icon || 'bi-question-circle'
-                                }`}
-                              ></i>
-                              {tipoInfo?.nombre || 'Desconocido'}
+                              <i className="bi bi-credit-card"></i>
+                              {venta.tipoVenta.tipoVenta}
                             </div>
                           </td>
                           <td
@@ -563,7 +543,7 @@ const VentasResumen = () => {
                     <strong style={{ color: '#1b4332' }}>
                       <i className="bi bi-calendar-check me-2"></i>
                       {new Date(ventaSeleccionada.fecha).toLocaleString(
-                        'es-AR'
+                        'es-AR',
                       )}
                     </strong>
                   </div>
@@ -600,18 +580,18 @@ const VentasResumen = () => {
                             className="bi bi-box-seam me-2"
                             style={{ color: '#40916c' }}
                           ></i>
-                          {detalle.producto.nombre}
+                          {detalle.producto?.nombre}
                         </td>
                         <td className="text-center">
                           <span className="badge bg-light text-dark border px-3 py-2">
-                            {detalle.cantidad}
+                            {detalle?.cantidad}
                           </span>
                         </td>
                         <td
                           className="text-end fw-bold"
                           style={{ color: '#2d6a4f' }}
                         >
-                          ${detalle.total}
+                          ${detalle?.total}
                         </td>
                       </tr>
                     ))
